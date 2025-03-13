@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-storyforge-purple" />
             <span className="font-display font-medium text-gray-700">
-              StoryForge Canvas
+              StoryMaker AI
             </span>
           </div>
           
@@ -24,7 +24,7 @@ const Footer = () => {
             </a>
             <span className="text-gray-400">|</span>
             <div className="flex items-center gap-1 text-sm text-gray-500">
-              <span>Made with</span>
+              <span>Made by Jacob with</span>
               <Heart className="h-3 w-3 text-storyforge-pink fill-storyforge-pink" />
               <span>and AI</span>
             </div>

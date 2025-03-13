@@ -10,8 +10,8 @@ const Header = () => {
           <BookOpen className="h-8 w-8 text-storyforge-purple" />
           <h1 className="text-2xl font-display font-bold">
             <span className="text-storyforge-blue">Story</span>
-            <span className="text-storyforge-purple">Forge</span>
-            <span className="text-gray-700"> Canvas</span>
+            <span className="text-storyforge-purple">Maker</span>
+            <span className="text-gray-700"> AI</span>
           </h1>
         </div>
         <div className="flex items-center gap-2">
