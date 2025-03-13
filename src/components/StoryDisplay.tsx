@@ -1,8 +1,9 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Book, Download, Sparkles } from 'lucide-react';
+import { Book, Download, Sparkles, X } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { Switch } from "@/components/ui/switch";
 
 interface StoryDisplayProps {
   title: string;
@@ -12,6 +13,7 @@ interface StoryDisplayProps {
 const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content }) => {
   const { toast } = useToast();
   const storyRef = useRef<HTMLDivElement>(null);
+  const [bookMode, setBookMode] = useState<boolean>(false);
   
   const handleDownload = () => {
     try {
@@ -50,6 +52,54 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content }) => {
 
   const paragraphs = content.split('\n\n');
 
+  const toggleBookMode = () => {
+    setBookMode(!bookMode);
+    
+    if (!bookMode) {
+      toast({
+        title: "Book mode enabled",
+        description: "Enjoy a more immersive reading experience.",
+      });
+      
+      // Scroll to the top of the story when entering book mode
+      if (storyRef.current) {
+        storyRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
+  if (bookMode) {
+    return (
+      <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in">
+        <div className="w-full max-w-4xl mx-auto bg-amber-50 rounded-lg shadow-2xl overflow-auto max-h-[90vh] relative">
+          <button 
+            onClick={toggleBookMode}
+            className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 z-10"
+            aria-label="Close book mode"
+          >
+            <X className="h-5 w-5" />
+          </button>
+          
+          <div className="p-12 md:p-16">
+            <div className="max-w-prose mx-auto">
+              <h1 className="text-3xl md:text-4xl font-display font-bold mb-8 text-center text-gray-800">{title}</h1>
+              
+              {paragraphs.map((paragraph, index) => (
+                <p key={index} className="mb-6 text-lg md:text-xl leading-relaxed font-serif text-gray-700">
+                  {paragraph}
+                </p>
+              ))}
+              
+              <div className="text-center mt-12 mb-4">
+                <Sparkles className="inline-block h-6 w-6 text-storyforge-yellow animate-pulse-slow" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full max-w-3xl mx-auto animate-fade-in">
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
@@ -76,7 +126,21 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content }) => {
           </div>
         </div>
         
-        <div className="border-t border-gray-100 p-4 bg-gray-50 flex justify-end">
+        <div className="border-t border-gray-100 p-4 bg-gray-50 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <Switch 
+              id="book-mode" 
+              checked={bookMode}
+              onCheckedChange={toggleBookMode}
+            />
+            <label 
+              htmlFor="book-mode" 
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              Book Mode
+            </label>
+          </div>
+          
           <Button 
             variant="outline" 
             className="flex items-center gap-2 bg-white hover:bg-gray-50"

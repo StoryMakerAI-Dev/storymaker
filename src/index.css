@@ -1,5 +1,6 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -68,4 +69,22 @@
 
 .gradient-text {
   @apply bg-clip-text text-transparent bg-gradient-to-r from-storyforge-blue via-storyforge-purple to-storyforge-pink;
+}
+
+/* Book mode styles */
+.font-serif {
+  font-family: 'Merriweather', serif;
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s ease-in-out infinite;
 }
