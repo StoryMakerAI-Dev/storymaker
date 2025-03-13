@@ -1,12 +1,64 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from 'react';
+import Header from '@/components/Header';
+import StoryGenerator from '@/components/StoryGenerator';
+import StoryDisplay from '@/components/StoryDisplay';
+import Footer from '@/components/Footer';
+import { Sparkles } from 'lucide-react';
 
 const Index = () => {
+  const [storyContent, setStoryContent] = useState<string>('');
+  const [storyTitle, setStoryTitle] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
+
+  const handleStoryGenerated = (story: string, title: string) => {
+    setStoryContent(story);
+    setStoryTitle(title);
+    window.scrollTo({ 
+      top: document.body.scrollHeight, 
+      behavior: 'smooth' 
+    });
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-storyforge-background to-white">
+      <Header />
+      
+      <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
+        <section className="text-center mb-12 max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 gradient-text">
+            AI-Powered Story Creator
+          </h1>
+          <p className="text-xl text-gray-600 mb-6">
+            Generate unique stories for any age group with our intelligent storytelling engine
+          </p>
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/50 rounded-full text-gray-600 text-sm border border-gray-100 shadow-sm">
+              <Sparkles className="h-4 w-4 text-storyforge-yellow" />
+              <span>Endless possibilities await your imagination</span>
+            </div>
+          </div>
+        </section>
+        
+        <section className="mb-16">
+          <StoryGenerator 
+            onStoryGenerated={handleStoryGenerated}
+            isGenerating={isGenerating}
+            setIsGenerating={setIsGenerating}
+          />
+        </section>
+        
+        {storyContent && (
+          <section className="mb-12 animate-fade-in">
+            <StoryDisplay 
+              title={storyTitle} 
+              content={storyContent} 
+            />
+          </section>
+        )}
+      </main>
+      
+      <Footer />
     </div>
   );
 };

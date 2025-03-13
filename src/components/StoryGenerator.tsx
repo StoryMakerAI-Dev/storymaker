@@ -1,0 +1,294 @@
+
+import React, { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from '@/components/ui/use-toast';
+import { BookText, Wand2 } from 'lucide-react';
+
+type StoryParams = {
+  ageGroup: string;
+  genre: string;
+  characters: string;
+  setting: string;
+  theme: string;
+  additionalDetails: string;
+};
+
+const initialStoryParams: StoryParams = {
+  ageGroup: 'children',
+  genre: 'fantasy',
+  characters: '',
+  setting: '',
+  theme: '',
+  additionalDetails: '',
+};
+
+interface StoryGeneratorProps {
+  onStoryGenerated: (story: string, title: string) => void;
+  isGenerating: boolean;
+  setIsGenerating: (value: boolean) => void;
+}
+
+const StoryGenerator: React.FC<StoryGeneratorProps> = ({ 
+  onStoryGenerated, 
+  isGenerating,
+  setIsGenerating
+}) => {
+  const [storyParams, setStoryParams] = useState<StoryParams>(initialStoryParams);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setStoryParams((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setStoryParams((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const generateStory = async () => {
+    setIsGenerating(true);
+    
+    try {
+      // In a real application, this would be an API call to an AI service
+      // For now, we'll simulate a response with a timeout
+      setTimeout(() => {
+        const title = generateMockTitle(storyParams);
+        const story = generateMockStory(storyParams);
+        
+        onStoryGenerated(story, title);
+        setIsGenerating(false);
+        
+        toast({
+          title: "Story created!",
+          description: "Your unique story has been generated.",
+        });
+      }, 2000);
+    } catch (error) {
+      console.error("Error generating story:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate story. Please try again.",
+        variant: "destructive",
+      });
+      setIsGenerating(false);
+    }
+  };
+
+  const generateMockTitle = (params: StoryParams): string => {
+    const titles = {
+      children: [
+        "The Magical Forest Adventure",
+        "Captain Whiskers and the Treasure Island",
+        "Luna's Journey to the Stars",
+        "The Brave Little Dragon"
+      ],
+      teens: [
+        "The Secret of Shadow Academy",
+        "Beyond the Forbidden Gate",
+        "Chronicles of the Moon Walkers",
+        "The Last Spell Keeper"
+      ],
+      adults: [
+        "Echoes of Forgotten Realms",
+        "The Silence Between Worlds",
+        "Beneath the Veil of Time",
+        "When Shadows Speak"
+      ]
+    };
+    
+    const ageGroup = params.ageGroup as keyof typeof titles;
+    const randomIndex = Math.floor(Math.random() * titles[ageGroup].length);
+    return titles[ageGroup][randomIndex];
+  };
+
+  const generateMockStory = (params: StoryParams): string => {
+    // This is a placeholder for the actual AI generation
+    // In a real app, you would call an API like OpenAI
+    
+    const storyIntros = {
+      children: `Once upon a time in a land far away, where the trees whispered secrets and the rivers sang lullabies, there lived a group of extraordinary friends. ${params.characters || "A brave little fox and a wise old owl"} were known throughout the ${params.setting || "enchanted forest"} for their incredible adventures.
+
+One sunny morning, as golden rays filtered through the leaves, our heroes discovered something unusual—a glowing map that appeared out of nowhere! The map showed the way to ${params.theme || "a hidden treasure that could grant one wish to whoever found it"}.
+
+"Should we follow it?" asked the ${params.characters ? params.characters.split(',')[0] : "fox"}, eyes wide with excitement.
+
+The ${params.characters ? params.characters.split(',')[1] || "owl" : "owl"} nodded wisely. "Every great adventure begins with a single step," it hooted.
+
+And so, their journey began...`,
+
+      teens: `The summer that changed everything started like any other in ${params.setting || "the sleepy coastal town of Azuremist"}. ${params.characters || "Sixteen-year-old Jamie and best friends Kai and Lena"} had no idea that their lives were about to take an unexpected turn.
+
+It was the strange lights over the abandoned lighthouse that first caught their attention. No one else seemed to notice them—swirling, pulsating colors that appeared only at midnight.
+
+"We should check it out," ${params.characters ? params.characters.split(',')[0] : "Jamie"} said, already knowing the others would agree. They always did when it came to adventures.
+
+What they discovered inside the lighthouse would unveil secrets about ${params.theme || "their town's history and their own mysterious connections to it"}. As they climbed the winding staircase, the air grew thick with anticipation...`,
+
+      adults: `The rain fell in relentless sheets as ${params.characters || "Dr. Eleanor Reeves"} stood at the crossroads of what was and what could be. Three years of research had led to this moment—this decision. The ${params.setting || "ancient manuscript"} lay open on the desk, its secrets finally revealed after centuries of silence.
+
+"You don't have to do this," came a voice from the doorway. ${params.characters ? params.characters.split(',')[1] || "Professor Martin" : "Professor Martin"} stood there, concern etched across his weathered face.
+
+"We both know that's not true," ${params.characters ? params.characters.split(',')[0] : "Eleanor"} replied, fingers tracing the symbols that promised ${params.theme || "answers to questions humanity wasn't supposed to ask"}.
+
+Some boundaries weren't meant to be crossed, but the allure of forbidden knowledge had always been humanity's greatest weakness. And perhaps, its greatest strength...`
+    };
+    
+    const ageGroup = params.ageGroup as keyof typeof storyIntros;
+    return storyIntros[ageGroup] + "\n\n" + generateAdditionalParagraphs(params);
+  };
+
+  const generateAdditionalParagraphs = (params: StoryParams): string => {
+    // Add some additional paragraphs based on the age group
+    const paragraphs = {
+      children: `
+As they ventured deeper into the ${params.setting || "enchanted forest"}, the trees grew taller and the colors more vibrant. Flowers of every hue lined the path, some even greeting them with tiny nods as they passed by!
+
+"Look!" exclaimed the ${params.characters ? params.characters.split(',')[0] : "fox"}, pointing to a clearing ahead. There, bathed in dappled sunlight, stood a circle of mushrooms with tiny doors and windows. It was a village! Tiny creatures with leafy hats peeked out curiously.
+
+An elderberry fairy with gossamer wings approached them. "Welcome, travelers! We've been expecting you," she said with a tinkling laugh. "The treasure you seek is not just gold and jewels, but something far more precious—it's the magic of friendship and courage!"
+
+The ${params.characters ? params.characters.split(',')[1] || "owl" : "owl"} looked thoughtful. "Sometimes the greatest treasures are the ones we discover within ourselves during the journey," it said wisely.
+
+With new friends and a map full of wonders, our heroes continued their adventure, ready for whatever magic awaited them just beyond the next hill.`,
+
+      teens: `
+The lighthouse keeper's journal revealed a truth that made their blood run cold. A hundred years ago, on this very day, ${params.theme || "three teenagers just like them had discovered the gateway—a tear in reality that appeared only during the lunar eclipse. None of them ever returned."} 
+
+"We should tell someone about this," ${params.characters ? params.characters.split(',')[1] || "Kai" : "Kai"} suggested, but the determination in ${params.characters ? params.characters.split(',')[0] : "Jamie"}'s eyes said otherwise.
+
+"No one would believe us," ${params.characters ? params.characters.split(',')[0] : "Jamie"} replied, turning the brittle pages. "Besides, look at this—it says they left something behind, something important."
+
+The journal contained a map, marked with symbols matching the strange birthmarks they'd all shared since childhood. Coincidence? Hardly.
+
+As night fell and the moon began to darken, they made their choice. Sometimes destiny isn't about what happens to you, but about what you choose to confront.`,
+
+      adults: `
+The implications were staggering. If ${params.characters ? params.characters.split(',')[0] : "Eleanor"}'s theory was correct, ${params.theme || "history as they knew it was built on carefully constructed lies. Ancient civilizations hadn't collapsed—they had transcended."} 
+
+"Have you considered the consequences?" ${params.characters ? params.characters.split(',')[1] || "Professor Martin" : "Professor Martin"} asked, pouring amber liquid into two glasses. "There are powers that would kill to keep this hidden."
+
+"Is that a threat or a warning?" ${params.characters ? params.characters.split(',')[0] : "Eleanor"} took the offered drink, studying his expression carefully.
+
+"Does it matter?" he countered. "You've aligned yourself with forces beyond our understanding. The manuscript isn't just a document—it's a key."
+
+Outside, the storm intensified as if mirroring the tempest of moral ambiguity that surrounded them. Truth had always been valued above all else in academic circles, but some truths came with a price that extended beyond reputations and careers.
+
+"Tomorrow, we cross the point of no return," ${params.characters ? params.characters.split(',')[0] : "Eleanor"} said, making her decision. "The world deserves to know what lies behind the veil."
+`
+    };
+    
+    const ageGroup = params.ageGroup as keyof typeof paragraphs;
+    return paragraphs[ageGroup];
+  };
+
+  return (
+    <div className="w-full max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md border border-gray-100 animate-fade-in">
+      <div className="mb-5 flex items-center gap-2">
+        <BookText className="h-6 w-6 text-storyforge-blue" />
+        <h2 className="text-2xl font-display font-bold text-gray-800">Story Generator</h2>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <Label htmlFor="ageGroup">Age Group</Label>
+          <Select 
+            value={storyParams.ageGroup} 
+            onValueChange={(value) => handleSelectChange('ageGroup', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select age group" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="children">Children (4-12)</SelectItem>
+              <SelectItem value="teens">Teens (13-17)</SelectItem>
+              <SelectItem value="adults">Adults (18+)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label htmlFor="genre">Genre</Label>
+          <Select 
+            value={storyParams.genre} 
+            onValueChange={(value) => handleSelectChange('genre', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select genre" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fantasy">Fantasy</SelectItem>
+              <SelectItem value="adventure">Adventure</SelectItem>
+              <SelectItem value="mystery">Mystery</SelectItem>
+              <SelectItem value="science-fiction">Science Fiction</SelectItem>
+              <SelectItem value="fairy-tale">Fairy Tale</SelectItem>
+              <SelectItem value="historical">Historical</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="characters">Main Characters</Label>
+          <Input
+            id="characters"
+            name="characters"
+            placeholder="e.g., A brave knight, a clever wizard"
+            value={storyParams.characters}
+            onChange={handleInputChange}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="setting">Setting</Label>
+          <Input
+            id="setting"
+            name="setting"
+            placeholder="e.g., Enchanted forest, Space station"
+            value={storyParams.setting}
+            onChange={handleInputChange}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="theme">Theme or Lesson</Label>
+          <Input
+            id="theme"
+            name="theme"
+            placeholder="e.g., Friendship, Courage, Honesty"
+            value={storyParams.theme}
+            onChange={handleInputChange}
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="additionalDetails">Additional Details (Optional)</Label>
+          <Textarea
+            id="additionalDetails"
+            name="additionalDetails"
+            placeholder="Any specific elements you'd like included in the story..."
+            value={storyParams.additionalDetails}
+            onChange={handleInputChange}
+            rows={3}
+          />
+        </div>
+      </div>
+      
+      <Button 
+        className="mt-6 w-full bg-gradient-to-r from-storyforge-blue to-storyforge-purple hover:opacity-90 transition-opacity"
+        onClick={generateStory}
+        disabled={isGenerating}
+      >
+        <Wand2 className="mr-2 h-4 w-4" />
+        {isGenerating ? "Creating Your Story..." : "Generate Story"}
+      </Button>
+    </div>
+  );
+};
+
+export default StoryGenerator;
