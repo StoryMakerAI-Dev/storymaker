@@ -1,15 +1,25 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import StoryGenerator from '@/components/StoryGenerator';
 import StoryDisplay from '@/components/StoryDisplay';
 import Footer from '@/components/Footer';
-import { Sparkles } from 'lucide-react';
+import { Sparkles, Loader2 } from 'lucide-react';
 
 const Index = () => {
   const [storyContent, setStoryContent] = useState<string>('');
   const [storyTitle, setStoryTitle] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [pageLoaded, setPageLoaded] = useState(false);
+
+  useEffect(() => {
+    // Mark page as loaded after a short delay to ensure components are ready
+    const timer = setTimeout(() => {
+      setPageLoaded(true);
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleStoryGenerated = (story: string, title: string) => {
     setStoryContent(story);
@@ -19,6 +29,17 @@ const Index = () => {
       behavior: 'smooth' 
     });
   };
+
+  if (!pageLoaded) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-storyforge-background to-white">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-12 w-12 text-storyforge-purple animate-spin" />
+          <p className="text-lg text-gray-600">Loading StoryMaker AI...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-storyforge-background to-white">

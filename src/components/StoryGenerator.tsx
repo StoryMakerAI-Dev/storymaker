@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from '@/components/ui/use-toast';
-import { BookText, Wand2 } from 'lucide-react';
+import { BookText, Wand2, Loader2 } from 'lucide-react';
 
 type StoryParams = {
   ageGroup: string;
@@ -38,22 +38,29 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   setIsGenerating
 }) => {
   const [storyParams, setStoryParams] = useState<StoryParams>(initialStoryParams);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setStoryParams((prev) => ({ ...prev, [name]: value }));
+    // Clear any previous error when user makes changes
+    if (error) setError(null);
   };
 
   const handleSelectChange = (name: string, value: string) => {
     setStoryParams((prev) => ({ ...prev, [name]: value }));
+    // Clear any previous error when user makes changes
+    if (error) setError(null);
   };
 
   const generateStory = async () => {
     // Prevent multiple submissions
     if (isGenerating) return;
     
+    // Clear any previous errors
+    setError(null);
     setIsGenerating(true);
     
     try {
@@ -76,6 +83,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
           });
         } catch (error) {
           console.error("Error in story generation:", error);
+          setError("Something went wrong while creating your story. Please try again.");
           toast({
             title: "Error",
             description: "Something went wrong while creating your story.",
@@ -87,6 +95,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
       }, 2000);
     } catch (error) {
       console.error("Error generating story:", error);
+      setError("Failed to start story generation. Please try again.");
       toast({
         title: "Error",
         description: "Failed to generate story. Please try again.",
@@ -210,12 +219,19 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
         <h2 className="text-2xl font-display font-bold text-gray-800">Story Generator</h2>
       </div>
       
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-600 rounded-lg">
+          {error}
+        </div>
+      )}
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
           <Label htmlFor="ageGroup">Age Group</Label>
           <Select 
             value={storyParams.ageGroup} 
             onValueChange={(value) => handleSelectChange('ageGroup', value)}
+            disabled={isGenerating}
           >
             <SelectTrigger id="ageGroup">
               <SelectValue placeholder="Select age group" />
@@ -233,6 +249,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
           <Select 
             value={storyParams.genre} 
             onValueChange={(value) => handleSelectChange('genre', value)}
+            disabled={isGenerating}
           >
             <SelectTrigger id="genre">
               <SelectValue placeholder="Select genre" />
@@ -258,6 +275,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
             placeholder="e.g., A brave knight, a clever wizard"
             value={storyParams.characters}
             onChange={handleInputChange}
+            disabled={isGenerating}
           />
         </div>
         
@@ -269,6 +287,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
             placeholder="e.g., Enchanted forest, Space station"
             value={storyParams.setting}
             onChange={handleInputChange}
+            disabled={isGenerating}
           />
         </div>
         
@@ -280,6 +299,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
             placeholder="e.g., Friendship, Courage, Honesty"
             value={storyParams.theme}
             onChange={handleInputChange}
+            disabled={isGenerating}
           />
         </div>
         
@@ -292,6 +312,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
             value={storyParams.additionalDetails}
             onChange={handleInputChange}
             rows={3}
+            disabled={isGenerating}
           />
         </div>
       </div>
@@ -301,8 +322,17 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
         onClick={generateStory}
         disabled={isGenerating}
       >
-        <Wand2 className="mr-2 h-4 w-4" />
-        {isGenerating ? "Creating Your Story..." : "Generate Story"}
+        {isGenerating ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Creating Your Story...
+          </>
+        ) : (
+          <>
+            <Wand2 className="mr-2 h-4 w-4" />
+            Generate Story
+          </>
+        )}
       </Button>
     </div>
   );
