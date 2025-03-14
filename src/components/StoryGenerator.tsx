@@ -51,22 +51,39 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   };
 
   const generateStory = async () => {
+    // Prevent multiple submissions
+    if (isGenerating) return;
+    
     setIsGenerating(true);
     
     try {
       // In a real application, this would be an API call to an AI service
       // For now, we'll simulate a response with a timeout
       setTimeout(() => {
-        const title = generateMockTitle(storyParams);
-        const story = generateMockStory(storyParams);
-        
-        onStoryGenerated(story, title);
-        setIsGenerating(false);
-        
-        toast({
-          title: "Story created!",
-          description: "Your unique story has been generated.",
-        });
+        try {
+          const title = generateMockTitle(storyParams);
+          const story = generateMockStory(storyParams);
+          
+          if (!title || !story) {
+            throw new Error("Failed to generate story content");
+          }
+          
+          onStoryGenerated(story, title);
+          
+          toast({
+            title: "Story created!",
+            description: "Your unique story has been generated.",
+          });
+        } catch (error) {
+          console.error("Error in story generation:", error);
+          toast({
+            title: "Error",
+            description: "Something went wrong while creating your story.",
+            variant: "destructive",
+          });
+        } finally {
+          setIsGenerating(false);
+        }
       }, 2000);
     } catch (error) {
       console.error("Error generating story:", error);
@@ -200,7 +217,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
             value={storyParams.ageGroup} 
             onValueChange={(value) => handleSelectChange('ageGroup', value)}
           >
-            <SelectTrigger>
+            <SelectTrigger id="ageGroup">
               <SelectValue placeholder="Select age group" />
             </SelectTrigger>
             <SelectContent>
@@ -217,7 +234,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
             value={storyParams.genre} 
             onValueChange={(value) => handleSelectChange('genre', value)}
           >
-            <SelectTrigger>
+            <SelectTrigger id="genre">
               <SelectValue placeholder="Select genre" />
             </SelectTrigger>
             <SelectContent>
