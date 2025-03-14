@@ -21,7 +21,7 @@ const Footer = () => {
           </div>
           
           <div className="flex items-center gap-3">
-            <a href="#" className="text-gray-500 hover:text-storyforge-blue transition-colors">
+            <a href="https://github.com/storymakerai" className="text-gray-500 hover:text-storyforge-blue transition-colors">
               <Github className="h-5 w-5" />
             </a>
             <span className="text-gray-400">|</span>
