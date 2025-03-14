@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { BookOpen, Github, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
@@ -16,6 +17,7 @@ const Footer = () => {
           
           <div className="text-sm text-gray-500">
             <p>Create AI-powered stories for readers of all ages</p>
+            <a href="https://www.storymakerai.com" className="text-storyforge-blue hover:underline">www.storymakerai.com</a>
           </div>
           
           <div className="flex items-center gap-3">
