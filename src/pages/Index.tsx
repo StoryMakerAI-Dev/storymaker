@@ -11,15 +11,36 @@ const Index = () => {
   const [storyTitle, setStoryTitle] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     // Mark page as loaded after a short delay to ensure components are ready
     const timer = setTimeout(() => {
-      setPageLoaded(true);
-    }, 500);
+      try {
+        // Verify essential components are available
+        if (typeof StoryGenerator !== 'function' || typeof StoryDisplay !== 'function') {
+          throw new Error('Essential components failed to load');
+        }
+        setPageLoaded(true);
+      } catch (error) {
+        console.error('Page loading error:', error);
+        setLoadError('Failed to load page components. Please refresh the page.');
+      }
+    }, 800);
     
-    return () => clearTimeout(timer);
-  }, []);
+    // Add a fallback timer to set page as loaded even if there was an error
+    const fallbackTimer = setTimeout(() => {
+      if (!pageLoaded) {
+        console.log('Forcing page load after timeout');
+        setPageLoaded(true);
+      }
+    }, 3000);
+    
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(fallbackTimer);
+    };
+  }, [pageLoaded]);
 
   const handleStoryGenerated = (story: string, title: string) => {
     setStoryContent(story);
@@ -32,10 +53,21 @@ const Index = () => {
 
   if (!pageLoaded) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-storyforge-background to-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-storyforge-background to-white p-4">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-12 w-12 text-storyforge-purple animate-spin" />
-          <p className="text-lg text-gray-600">Loading StoryMaker AI...</p>
+          <p className="text-lg text-gray-600 text-center">Loading StoryMaker AI...</p>
+          {loadError && (
+            <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-lg max-w-md text-center">
+              {loadError}
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-2 px-4 py-1 bg-red-100 hover:bg-red-200 rounded-full text-sm transition-colors"
+              >
+                Refresh Page
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
