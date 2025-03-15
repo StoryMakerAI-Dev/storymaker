@@ -21,7 +21,7 @@ const Footer = () => {
             </a>
             <span className="text-gray-400">|</span>
             <div className="flex items-center gap-1 text-sm text-gray-500">
-              <span>Made by Jacob with</span>
+              <span>Made by Jacob and with</span>
               <Heart className="h-3 w-3 text-storyforge-pink fill-storyforge-pink" />
               <span></span>
             </div>
