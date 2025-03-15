@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from '@/components/ui/use-toast';
-import { BookText, Wand2 } from 'lucide-react';
+import { BookText, Wand2, Sparkles, Dice5 } from 'lucide-react';
 import PronounSelector from './PronounSelector';
 
 type StoryParams = {
@@ -52,15 +53,98 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     setStoryParams((prev) => ({ ...prev, [name]: value }));
   };
 
-  const generateStory = async () => {
+  const generateRandomStory = () => {
+    // Generate random story parameters
+    const randomAgeGroups = ['children', 'teens', 'adults'];
+    const randomGenres = ['fantasy', 'adventure', 'mystery', 'science-fiction', 'fairy-tale', 'historical'];
+    const randomCharacters = [
+      'a brave knight and a wise wizard',
+      'a curious child and a mysterious stranger',
+      'a talking animal and a magical creature',
+      'a space explorer and an alien guide',
+      'a detective and a reluctant witness',
+      'a pirate captain and a royal advisor'
+    ];
+    const randomPronouns = ['she/her', 'he/him', 'they/them'];
+    const randomSettings = [
+      'enchanted forest',
+      'floating islands in the sky',
+      'abandoned space station',
+      'underwater kingdom',
+      'ancient ruins',
+      'bustling medieval marketplace'
+    ];
+    const randomThemes = [
+      'friendship and loyalty',
+      'courage in the face of fear',
+      'finding home in unexpected places',
+      'the power of knowledge',
+      'discovering one\'s true identity',
+      'learning to trust others'
+    ];
+
+    const randomParams: StoryParams = {
+      ageGroup: randomAgeGroups[Math.floor(Math.random() * randomAgeGroups.length)],
+      genre: randomGenres[Math.floor(Math.random() * randomGenres.length)],
+      characters: randomCharacters[Math.floor(Math.random() * randomCharacters.length)],
+      pronouns: randomPronouns[Math.floor(Math.random() * randomPronouns.length)],
+      setting: randomSettings[Math.floor(Math.random() * randomSettings.length)],
+      theme: randomThemes[Math.floor(Math.random() * randomThemes.length)],
+      additionalDetails: '',
+    };
+
+    setStoryParams(randomParams);
+    
+    // Generate the story with the random parameters
+    generateStory(randomParams);
+  };
+
+  const validateInputs = (params: StoryParams) => {
+    // Check if essential fields are filled
+    if (!params.characters.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide main characters for your story.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (!params.setting.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide a setting for your story.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (!params.theme.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide a theme or lesson for your story.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
+  const generateStory = async (paramsToUse: StoryParams = storyParams) => {
+    // Validate inputs before generating
+    if (!validateInputs(paramsToUse)) {
+      return;
+    }
+    
     setIsGenerating(true);
     
     try {
       // In a real application, this would be an API call to an AI service
       // For now, we'll simulate a response with a timeout
       setTimeout(() => {
-        const title = generateMockTitle(storyParams);
-        const story = generateMockStory(storyParams);
+        const title = generateMockTitle(paramsToUse);
+        const story = generateMockStory(paramsToUse);
         
         onStoryGenerated(story, title);
         setIsGenerating(false);
@@ -291,14 +375,26 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
         </div>
       </div>
       
-      <Button 
-        className="mt-6 w-full bg-gradient-to-r from-storyforge-blue to-storyforge-purple hover:opacity-90 transition-opacity"
-        onClick={generateStory}
-        disabled={isGenerating}
-      >
-        <Wand2 className="mr-2 h-4 w-4" />
-        {isGenerating ? "Creating Your Story..." : "Generate Story"}
-      </Button>
+      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Button 
+          className="bg-gradient-to-r from-storyforge-blue to-storyforge-purple hover:opacity-90 transition-opacity"
+          onClick={() => generateStory()}
+          disabled={isGenerating}
+        >
+          <Wand2 className="mr-2 h-4 w-4" />
+          {isGenerating ? "Creating Your Story..." : "Generate Story"}
+        </Button>
+        
+        <Button 
+          variant="secondary"
+          onClick={generateRandomStory}
+          disabled={isGenerating}
+          className="flex items-center justify-center"
+        >
+          <Dice5 className="mr-2 h-4 w-4" />
+          Random Story
+        </Button>
+      </div>
     </div>
   );
 };
