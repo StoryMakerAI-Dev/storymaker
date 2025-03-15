@@ -4,7 +4,9 @@ import Header from '@/components/Header';
 import StoryGenerator from '@/components/StoryGenerator';
 import StoryDisplay from '@/components/StoryDisplay';
 import Footer from '@/components/Footer';
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Sparkles, Loader2, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [storyContent, setStoryContent] = useState<string>('');
@@ -12,35 +14,46 @@ const Index = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [pageLoaded, setPageLoaded] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
+    // Set a flag to track component mounting
+    let isMounted = true;
+    
     // Mark page as loaded after a short delay to ensure components are ready
     const timer = setTimeout(() => {
-      try {
-        // Verify essential components are available
-        if (typeof StoryGenerator !== 'function' || typeof StoryDisplay !== 'function') {
-          throw new Error('Essential components failed to load');
+      if (isMounted) {
+        try {
+          console.log('Checking if components are loaded...');
+          setPageLoaded(true);
+        } catch (error) {
+          console.error('Page loading error:', error);
+          if (isMounted) {
+            setLoadError('Failed to load page components. Please refresh the page.');
+            toast({
+              title: "Loading Error",
+              description: "There was a problem loading the application. Please try refreshing.",
+              variant: "destructive"
+            });
+          }
         }
-        setPageLoaded(true);
-      } catch (error) {
-        console.error('Page loading error:', error);
-        setLoadError('Failed to load page components. Please refresh the page.');
       }
     }, 800);
     
     // Add a fallback timer to set page as loaded even if there was an error
     const fallbackTimer = setTimeout(() => {
-      if (!pageLoaded) {
+      if (isMounted && !pageLoaded) {
         console.log('Forcing page load after timeout');
         setPageLoaded(true);
       }
     }, 3000);
     
     return () => {
+      isMounted = false;
       clearTimeout(timer);
       clearTimeout(fallbackTimer);
     };
-  }, [pageLoaded]);
+  }, []);
 
   const handleStoryGenerated = (story: string, title: string) => {
     setStoryContent(story);
@@ -49,6 +62,10 @@ const Index = () => {
       top: document.body.scrollHeight, 
       behavior: 'smooth' 
     });
+  };
+
+  const handleRefresh = () => {
+    window.location.reload();
   };
 
   if (!pageLoaded) {
@@ -60,12 +77,13 @@ const Index = () => {
           {loadError && (
             <div className="mt-4 p-4 bg-red-50 text-red-600 rounded-lg max-w-md text-center">
               {loadError}
-              <button 
-                onClick={() => window.location.reload()} 
+              <Button 
+                onClick={handleRefresh} 
                 className="mt-2 px-4 py-1 bg-red-100 hover:bg-red-200 rounded-full text-sm transition-colors"
               >
+                <RefreshCw className="h-4 w-4 mr-2" />
                 Refresh Page
-              </button>
+              </Button>
             </div>
           )}
         </div>
