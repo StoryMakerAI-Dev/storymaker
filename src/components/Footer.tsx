@@ -1,10 +1,7 @@
-
 import React from 'react';
 import { BookOpen, Github, Heart } from 'lucide-react';
-
 const Footer = () => {
-  return (
-    <footer className="w-full py-6 px-4 mt-12 border-t border-gray-100">
+  return <footer className="w-full py-6 px-4 mt-12 border-t border-gray-100">
       <div className="container max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2">
@@ -26,13 +23,11 @@ const Footer = () => {
             <div className="flex items-center gap-1 text-sm text-gray-500">
               <span>Made by Jacob with</span>
               <Heart className="h-3 w-3 text-storyforge-pink fill-storyforge-pink" />
-              <span>and AI</span>
+              <span></span>
             </div>
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
