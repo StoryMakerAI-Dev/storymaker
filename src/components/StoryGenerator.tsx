@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,7 +53,6 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   };
 
   const generateRandomStory = () => {
-    // Generate random story parameters
     const randomAgeGroups = ['children', 'teens', 'adults'];
     const randomGenres = ['fantasy', 'adventure', 'mystery', 'science-fiction', 'fairy-tale', 'historical'];
     const randomCharacters = [
@@ -95,12 +93,10 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
 
     setStoryParams(randomParams);
     
-    // Generate the story with the random parameters
     generateStory(randomParams);
   };
 
   const validateInputs = (params: StoryParams) => {
-    // Check if essential fields are filled
     if (!params.characters.trim()) {
       toast({
         title: "Missing information",
@@ -132,7 +128,6 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   };
 
   const generateStory = async (paramsToUse: StoryParams = storyParams) => {
-    // Validate inputs before generating
     if (!validateInputs(paramsToUse)) {
       return;
     }
@@ -140,8 +135,6 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     setIsGenerating(true);
     
     try {
-      // In a real application, this would be an API call to an AI service
-      // For now, we'll simulate a response with a timeout
       setTimeout(() => {
         const title = generateMockTitle(paramsToUse);
         const story = generateMockStory(paramsToUse);
@@ -166,30 +159,29 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   };
 
   const generateMockTitle = (params: StoryParams): string => {
-    const titles = {
-      children: [
-        "The Magical Forest Adventure",
-        "Captain Whiskers and the Treasure Island",
-        "Luna's Journey to the Stars",
-        "The Brave Little Dragon"
-      ],
-      teens: [
-        "The Secret of Shadow Academy",
-        "Beyond the Forbidden Gate",
-        "Chronicles of the Moon Walkers",
-        "The Last Spell Keeper"
-      ],
-      adults: [
-        "Echoes of Forgotten Realms",
-        "The Silence Between Worlds",
-        "Beneath the Veil of Time",
-        "When Shadows Speak"
-      ]
-    };
+    const mainCharacter = params.characters.split(',')[0] || "Hero";
+    const cleanedMainCharacter = mainCharacter.trim().replace(/^a |^an |^the /i, '');
+    const setting = params.setting || "Magical Land";
     
-    const ageGroup = params.ageGroup as keyof typeof titles;
-    const randomIndex = Math.floor(Math.random() * titles[ageGroup].length);
-    return titles[ageGroup][randomIndex];
+    const titlePrefixes = [
+      "The Adventure of",
+      "The Tale of",
+      "The Journey of",
+      "The Quest of",
+      "The Story of"
+    ];
+    
+    const titleConnectors = [
+      "in the",
+      "and the",
+      "of the",
+      "beyond the"
+    ];
+    
+    const prefix = titlePrefixes[Math.floor(Math.random() * titlePrefixes.length)];
+    const connector = titleConnectors[Math.floor(Math.random() * titleConnectors.length)];
+    
+    return `${prefix} ${cleanedMainCharacter} ${connector} ${setting}`;
   };
 
   const generateMockStory = (params: StoryParams): string => {
