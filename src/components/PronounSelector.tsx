@@ -30,13 +30,8 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
           <SelectValue placeholder="Select pronouns" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="they/them">They/Them</SelectItem>
           <SelectItem value="she/her">She/Her</SelectItem>
           <SelectItem value="he/him">He/Him</SelectItem>
-          <SelectItem value="she/they">She/They</SelectItem>
-          <SelectItem value="he/they">He/They</SelectItem>
-          <SelectItem value="ze/zir">Ze/Zir</SelectItem>
-          <SelectItem value="ze/hir">Ze/Hir</SelectItem>
           <SelectItem value="custom">Custom/Other</SelectItem>
         </SelectContent>
       </Select>

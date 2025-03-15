@@ -22,7 +22,7 @@ const initialStoryParams: StoryParams = {
   ageGroup: 'children',
   genre: 'fantasy',
   characters: '',
-  pronouns: 'they/them',
+  pronouns: 'she/her',
   setting: '',
   theme: '',
   additionalDetails: '',
@@ -110,13 +110,8 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
 
   const generateMockStory = (params: StoryParams): string => {
     const pronounPairs = {
-      "they/them": { subject: "they", object: "them", possessive: "their", reflexive: "themselves" },
       "she/her": { subject: "she", object: "her", possessive: "her", reflexive: "herself" },
       "he/him": { subject: "he", object: "him", possessive: "his", reflexive: "himself" },
-      "she/they": { subject: "she", object: "them", possessive: "their", reflexive: "themself" },
-      "he/they": { subject: "he", object: "them", possessive: "their", reflexive: "themself" },
-      "ze/zir": { subject: "ze", object: "zir", possessive: "zir", reflexive: "zirself" },
-      "ze/hir": { subject: "ze", object: "hir", possessive: "hir", reflexive: "hirself" },
       "custom": { subject: "they", object: "them", possessive: "their", reflexive: "themselves" }
     };
     
