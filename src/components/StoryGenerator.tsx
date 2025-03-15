@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,11 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from '@/components/ui/use-toast';
 import { BookText, Wand2 } from 'lucide-react';
+import PronounSelector from './PronounSelector';
 
 type StoryParams = {
   ageGroup: string;
   genre: string;
   characters: string;
+  pronouns: string;
   setting: string;
   theme: string;
   additionalDetails: string;
@@ -21,6 +22,7 @@ const initialStoryParams: StoryParams = {
   ageGroup: 'children',
   genre: 'fantasy',
   characters: '',
+  pronouns: 'they/them',
   setting: '',
   theme: '',
   additionalDetails: '',
@@ -107,57 +109,66 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   };
 
   const generateMockStory = (params: StoryParams): string => {
-    // This is a placeholder for the actual AI generation
-    // In a real app, you would call an API like OpenAI
+    const pronounPairs = {
+      "they/them": { subject: "they", object: "them", possessive: "their", reflexive: "themselves" },
+      "she/her": { subject: "she", object: "her", possessive: "her", reflexive: "herself" },
+      "he/him": { subject: "he", object: "him", possessive: "his", reflexive: "himself" },
+      "she/they": { subject: "she", object: "them", possessive: "their", reflexive: "themself" },
+      "he/they": { subject: "he", object: "them", possessive: "their", reflexive: "themself" },
+      "ze/zir": { subject: "ze", object: "zir", possessive: "zir", reflexive: "zirself" },
+      "ze/hir": { subject: "ze", object: "hir", possessive: "hir", reflexive: "hirself" },
+      "custom": { subject: "they", object: "them", possessive: "their", reflexive: "themselves" }
+    };
+    
+    const pronounSet = pronounPairs[params.pronouns as keyof typeof pronounPairs];
     
     const storyIntros = {
-      children: `Once upon a time in a land far away, where the trees whispered secrets and the rivers sang lullabies, there lived a group of extraordinary friends. ${params.characters || "A brave little fox and a wise old owl"} were known throughout the ${params.setting || "enchanted forest"} for their incredible adventures.
+      children: `Once upon a time in a land far away, where the trees whispered secrets and the rivers sang lullabies, there lived a group of extraordinary friends. ${params.characters || "A brave little fox and a wise old owl"} were known throughout the ${params.setting || "enchanted forest"} for ${pronounSet.possessive} incredible adventures.
 
 One sunny morning, as golden rays filtered through the leaves, our heroes discovered something unusual—a glowing map that appeared out of nowhere! The map showed the way to ${params.theme || "a hidden treasure that could grant one wish to whoever found it"}.
 
 "Should we follow it?" asked the ${params.characters ? params.characters.split(',')[0] : "fox"}, eyes wide with excitement.
 
-The ${params.characters ? params.characters.split(',')[1] || "owl" : "owl"} nodded wisely. "Every great adventure begins with a single step," it hooted.
+The ${params.characters ? params.characters.split(',')[1] || "owl" : "owl"} nodded wisely. "Every great adventure begins with a single step," ${pronounSet.subject} hooted.
 
-And so, their journey began...`,
+And so, ${pronounSet.possessive} journey began...`,
 
-      teens: `The summer that changed everything started like any other in ${params.setting || "the sleepy coastal town of Azuremist"}. ${params.characters || "Sixteen-year-old Jamie and best friends Kai and Lena"} had no idea that their lives were about to take an unexpected turn.
+      teens: `The summer that changed everything started like any other in ${params.setting || "the sleepy coastal town of Azuremist"}. ${params.characters || "Sixteen-year-old Jamie and best friends Kai and Lena"} had no idea that ${pronounSet.possessive} lives were about to take an unexpected turn.
 
-It was the strange lights over the abandoned lighthouse that first caught their attention. No one else seemed to notice them—swirling, pulsating colors that appeared only at midnight.
+It was the strange lights over the abandoned lighthouse that first caught ${pronounSet.possessive} attention. No one else seemed to notice them—swirling, pulsating colors that appeared only at midnight.
 
 "We should check it out," ${params.characters ? params.characters.split(',')[0] : "Jamie"} said, already knowing the others would agree. They always did when it came to adventures.
 
-What they discovered inside the lighthouse would unveil secrets about ${params.theme || "their town's history and their own mysterious connections to it"}. As they climbed the winding staircase, the air grew thick with anticipation...`,
+What ${pronounSet.subject} discovered inside the lighthouse would unveil secrets about ${params.theme || "their town's history and their own mysterious connections to it"}. As ${pronounSet.subject} climbed the winding staircase, the air grew thick with anticipation...`,
 
       adults: `The rain fell in relentless sheets as ${params.characters || "Dr. Eleanor Reeves"} stood at the crossroads of what was and what could be. Three years of research had led to this moment—this decision. The ${params.setting || "ancient manuscript"} lay open on the desk, its secrets finally revealed after centuries of silence.
 
-"You don't have to do this," came a voice from the doorway. ${params.characters ? params.characters.split(',')[1] || "Professor Martin" : "Professor Martin"} stood there, concern etched across his weathered face.
+"You don't have to do this," came a voice from the doorway. ${params.characters ? params.characters.split(',')[1] || "Professor Martin" : "Professor Martin"} stood there, concern etched across ${pronounSet.possessive} weathered face.
 
 "We both know that's not true," ${params.characters ? params.characters.split(',')[0] : "Eleanor"} replied, fingers tracing the symbols that promised ${params.theme || "answers to questions humanity wasn't supposed to ask"}.
 
-Some boundaries weren't meant to be crossed, but the allure of forbidden knowledge had always been humanity's greatest weakness. And perhaps, its greatest strength...`
+Some boundaries weren't meant to be crossed, but the allure of forbidden knowledge had always been humanity's greatest weakness. And perhaps, ${pronounSet.possessive} greatest strength...`
     };
     
     const ageGroup = params.ageGroup as keyof typeof storyIntros;
-    return storyIntros[ageGroup] + "\n\n" + generateAdditionalParagraphs(params);
+    return storyIntros[ageGroup] + "\n\n" + generateAdditionalParagraphs(params, pronounSet);
   };
 
-  const generateAdditionalParagraphs = (params: StoryParams): string => {
-    // Add some additional paragraphs based on the age group
+  const generateAdditionalParagraphs = (params: StoryParams, pronounSet: any): string => {
     const paragraphs = {
       children: `
-As they ventured deeper into the ${params.setting || "enchanted forest"}, the trees grew taller and the colors more vibrant. Flowers of every hue lined the path, some even greeting them with tiny nods as they passed by!
+As they ventured deeper into the ${params.setting || "enchanted forest"}, the trees grew taller and the colors more vibrant. Flowers of every hue lined the path, some even greeting ${pronounSet.object} with tiny nods as ${pronounSet.subject} passed by!
 
 "Look!" exclaimed the ${params.characters ? params.characters.split(',')[0] : "fox"}, pointing to a clearing ahead. There, bathed in dappled sunlight, stood a circle of mushrooms with tiny doors and windows. It was a village! Tiny creatures with leafy hats peeked out curiously.
 
-An elderberry fairy with gossamer wings approached them. "Welcome, travelers! We've been expecting you," she said with a tinkling laugh. "The treasure you seek is not just gold and jewels, but something far more precious—it's the magic of friendship and courage!"
+An elderberry fairy with gossamer wings approached ${pronounSet.object}. "Welcome, travelers! We've been expecting you," she said with a tinkling laugh. "The treasure you seek is not just gold and jewels, but something far more precious—it's the magic of friendship and courage!"
 
-The ${params.characters ? params.characters.split(',')[1] || "owl" : "owl"} looked thoughtful. "Sometimes the greatest treasures are the ones we discover within ourselves during the journey," it said wisely.
+The ${params.characters ? params.characters.split(',')[1] || "owl" : "owl"} looked thoughtful. "Sometimes the greatest treasures are the ones we discover within ${pronounSet.reflexive} during the journey," ${pronounSet.subject} said wisely.
 
-With new friends and a map full of wonders, our heroes continued their adventure, ready for whatever magic awaited them just beyond the next hill.`,
+With new friends and a map full of wonders, our heroes continued ${pronounSet.possessive} adventure, ready for whatever magic awaited ${pronounSet.object} just beyond the next hill.`,
 
       teens: `
-The lighthouse keeper's journal revealed a truth that made their blood run cold. A hundred years ago, on this very day, ${params.theme || "three teenagers just like them had discovered the gateway—a tear in reality that appeared only during the lunar eclipse. None of them ever returned."} 
+The lighthouse keeper's journal revealed a truth that made ${pronounSet.possessive} blood run cold. A hundred years ago, on this very day, ${params.theme || "three teenagers just like them had discovered the gateway—a tear in reality that appeared only during the lunar eclipse. None of them ever returned."} 
 
 "We should tell someone about this," ${params.characters ? params.characters.split(',')[1] || "Kai" : "Kai"} suggested, but the determination in ${params.characters ? params.characters.split(',')[0] : "Jamie"}'s eyes said otherwise.
 
@@ -165,20 +176,20 @@ The lighthouse keeper's journal revealed a truth that made their blood run cold.
 
 The journal contained a map, marked with symbols matching the strange birthmarks they'd all shared since childhood. Coincidence? Hardly.
 
-As night fell and the moon began to darken, they made their choice. Sometimes destiny isn't about what happens to you, but about what you choose to confront.`,
+As night fell and the moon began to darken, ${pronounSet.subject} made ${pronounSet.possessive} choice. Sometimes destiny isn't about what happens to you, but about what you choose to confront.`,
 
       adults: `
 The implications were staggering. If ${params.characters ? params.characters.split(',')[0] : "Eleanor"}'s theory was correct, ${params.theme || "history as they knew it was built on carefully constructed lies. Ancient civilizations hadn't collapsed—they had transcended."} 
 
 "Have you considered the consequences?" ${params.characters ? params.characters.split(',')[1] || "Professor Martin" : "Professor Martin"} asked, pouring amber liquid into two glasses. "There are powers that would kill to keep this hidden."
 
-"Is that a threat or a warning?" ${params.characters ? params.characters.split(',')[0] : "Eleanor"} took the offered drink, studying his expression carefully.
+"Is that a threat or a warning?" ${params.characters ? params.characters.split(',')[0] : "Eleanor"} took the offered drink, studying ${pronounSet.possessive} expression carefully.
 
-"Does it matter?" he countered. "You've aligned yourself with forces beyond our understanding. The manuscript isn't just a document—it's a key."
+"Does it matter?" ${pronounSet.subject} countered. "You've aligned ${pronounSet.reflexive} with forces beyond our understanding. The manuscript isn't just a document—it's a key."
 
-Outside, the storm intensified as if mirroring the tempest of moral ambiguity that surrounded them. Truth had always been valued above all else in academic circles, but some truths came with a price that extended beyond reputations and careers.
+Outside, the storm intensified as if mirroring the tempest of moral ambiguity that surrounded ${pronounSet.object}. Truth had always been valued above all else in academic circles, but some truths came with a price that extended beyond reputations and careers.
 
-"Tomorrow, we cross the point of no return," ${params.characters ? params.characters.split(',')[0] : "Eleanor"} said, making her decision. "The world deserves to know what lies behind the veil."
+"Tomorrow, we cross the point of no return," ${params.characters ? params.characters.split(',')[0] : "Eleanor"} said, making ${pronounSet.possessive} decision. "The world deserves to know what lies behind the veil."
 `
     };
     
@@ -243,6 +254,12 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
             onChange={handleInputChange}
           />
         </div>
+        
+        <PronounSelector
+          value={storyParams.pronouns}
+          onChange={(value) => handleSelectChange('pronouns', value)}
+          className="mt-4"
+        />
         
         <div>
           <Label htmlFor="setting">Setting</Label>
