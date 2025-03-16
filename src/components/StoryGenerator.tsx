@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,19 @@ import { toast } from '@/components/ui/use-toast';
 import { BookText, Wand2, Sparkles, Dice5, Users, Check, BookOpen } from 'lucide-react';
 import PronounSelector from './PronounSelector';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { 
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage 
+} from "@/components/ui/form";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 
 type StoryParams = {
   ageGroup: string;
@@ -36,8 +48,36 @@ interface StoryGeneratorProps {
   setIsGenerating: (value: boolean) => void;
 }
 
-// Simulate active users
-const getRandomUserCount = () => Math.floor(Math.random() * 50) + 100;
+// Login schema
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+// Registration schema
+const registerSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
+});
+
+// Define mock user database
+type User = {
+  email: string;
+  username: string;
+  password: string;
+};
+
+// Get users from localStorage or initialize empty array
+const getStoredUsers = (): User[] => {
+  const storedUsers = localStorage.getItem('storyMakerUsers');
+  return storedUsers ? JSON.parse(storedUsers) : [];
+};
+
+// Store users in localStorage
+const storeUsers = (users: User[]) => {
+  localStorage.setItem('storyMakerUsers', JSON.stringify(users));
+};
 
 const StoryGenerator: React.FC<StoryGeneratorProps> = ({ 
   onStoryGenerated, 
@@ -45,21 +85,43 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   setIsGenerating
 }) => {
   const [storyParams, setStoryParams] = useState<StoryParams>(initialStoryParams);
-  const [activeUsers, setActiveUsers] = useState(getRandomUserCount());
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [verificationMode, setVerificationMode] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [expectedCode, setExpectedCode] = useState("");
+  const [authError, setAuthError] = useState("");
+  
+  // Login form
+  const loginForm = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-  // Update active users periodically
+  // Register form
+  const registerForm = useForm<z.infer<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      username: "",
+      password: "",
+    },
+  });
+
+  // Check if user is logged in from localStorage on component mount
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveUsers(prev => {
-        const change = Math.floor(Math.random() * 5) - 2; // Random change between -2 and +2
-        return Math.max(50, prev + change); // Keep it above 50
-      });
-    }, 10000);
-    
-    return () => clearInterval(interval);
+    const loggedInUser = localStorage.getItem('storyMakerCurrentUser');
+    if (loggedInUser) {
+      const user = JSON.parse(loggedInUser);
+      setIsLoggedIn(true);
+      setUsername(user.username);
+      setCurrentUser(user);
+    }
   }, []);
 
   const handleInputChange = (
@@ -73,17 +135,94 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     setStoryParams((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleLogin = () => {
-    if (username.trim() && password.trim()) {
+  const handleLogin = (data: z.infer<typeof loginSchema>) => {
+    setAuthError("");
+    const users = getStoredUsers();
+    const user = users.find(u => u.email === data.email);
+    
+    if (!user) {
+      setAuthError("No account found with this email address");
+      return;
+    }
+    
+    if (user.password !== data.password) {
+      setAuthError("Incorrect password");
+      return;
+    }
+    
+    // Successful login
+    setIsLoggedIn(true);
+    setUsername(user.username);
+    setCurrentUser(user);
+    localStorage.setItem('storyMakerCurrentUser', JSON.stringify(user));
+    
+    toast({
+      title: "Login successful!",
+      description: `Welcome back, ${user.username}!`,
+    });
+  };
+
+  const handleRegister = (data: z.infer<typeof registerSchema>) => {
+    setAuthError("");
+    const users = getStoredUsers();
+    
+    // Check if email is already registered
+    if (users.some(u => u.email === data.email)) {
+      setAuthError("An account with this email already exists");
+      return;
+    }
+    
+    // Generate random 6-digit verification code
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    setExpectedCode(code);
+    
+    // Show verification screen and simulate email sending
+    setVerificationMode(true);
+    
+    toast({
+      title: "Verification code sent",
+      description: `A verification code (${code}) has been sent to ${data.email}`,
+    });
+    
+    // In a real app, this would be sent via email API
+    console.log(`Verification code: ${code} for ${data.email}`);
+  };
+
+  const verifyCode = () => {
+    if (verificationCode === expectedCode) {
+      // Get registration data
+      const data = registerForm.getValues();
+      
+      // Add new user
+      const newUser: User = {
+        email: data.email,
+        username: data.username,
+        password: data.password,
+      };
+      
+      const users = getStoredUsers();
+      users.push(newUser);
+      storeUsers(users);
+      
+      // Auto login
       setIsLoggedIn(true);
+      setUsername(newUser.username);
+      setCurrentUser(newUser);
+      localStorage.setItem('storyMakerCurrentUser', JSON.stringify(newUser));
+      
+      // Reset verification state
+      setVerificationMode(false);
+      setVerificationCode("");
+      setExpectedCode("");
+      
       toast({
-        title: "Login successful!",
-        description: `Welcome back, ${username}!`,
+        title: "Registration successful!",
+        description: `Welcome, ${newUser.username}!`,
       });
     } else {
       toast({
-        title: "Login failed",
-        description: "Please enter both username and password.",
+        title: "Invalid verification code",
+        description: "Please check the code and try again",
         variant: "destructive",
       });
     }
@@ -92,7 +231,9 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername("");
-    setPassword("");
+    setCurrentUser(null);
+    localStorage.removeItem('storyMakerCurrentUser');
+    
     toast({
       title: "Logged out",
       description: "You have been successfully logged out.",
@@ -360,65 +501,236 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
         </div>
         
         <div className="flex items-center gap-4">
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="flex items-center gap-1 text-gray-600"
-          >
-            <Users className="h-4 w-4 text-storyforge-purple" />
-            <span>{activeUsers} people online</span>
-          </Button>
-          
-          {!isLoggedIn ? (
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="sm">Login</Button>
-              </SheetTrigger>
-              <SheetContent>
-                <SheetHeader>
-                  <SheetTitle>Login to StoryMaker</SheetTitle>
-                  <SheetDescription>
-                    Sign in to save and share your stories
-                  </SheetDescription>
-                </SheetHeader>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-1"
+              >
+                {isLoggedIn ? username : "Login"}
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="overflow-y-auto">
+              <SheetHeader>
+                <SheetTitle>
+                  {verificationMode ? "Email Verification" : 
+                   authMode === 'login' ? "Login to StoryMaker" : "Create an Account"}
+                </SheetTitle>
+                <SheetDescription>
+                  {verificationMode ? "Enter the verification code sent to your email" : 
+                   authMode === 'login' ? "Sign in to save and share your stories" : 
+                  "Create an account to save and share your stories"}
+                </SheetDescription>
+              </SheetHeader>
+              
+              {verificationMode ? (
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <Label htmlFor="username">Username</Label>
-                    <Input 
-                      id="username" 
-                      placeholder="Enter your username" 
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                    />
+                    <Label htmlFor="verification-code">Verification Code</Label>
+                    <div className="flex justify-center py-4">
+                      <InputOTP
+                        maxLength={6}
+                        value={verificationCode}
+                        onChange={setVerificationCode}
+                      >
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input 
-                      id="password" 
-                      type="password" 
-                      placeholder="Enter your password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
+                  
                   <Button 
                     className="w-full mt-4" 
-                    onClick={handleLogin}
+                    onClick={verifyCode}
                   >
-                    Login
+                    Verify Code
                   </Button>
+                </div>
+              ) : isLoggedIn ? (
+                <div className="space-y-4 py-4">
+                  <div className="text-center">
+                    <div className="font-medium text-xl">{username}</div>
+                    <p className="text-muted-foreground">{currentUser?.email}</p>
+                  </div>
+                  
+                  <div className="flex justify-center space-x-2 pt-4">
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center gap-1"
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      <span>My Stories</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="destructive" 
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </Button>
+                  </div>
+                </div>
+              ) : authMode === 'login' ? (
+                <div className="space-y-4 py-4">
+                  {authError && (
+                    <Alert className="mb-4 border-red-200 bg-red-50 text-red-700">
+                      <AlertDescription>{authError}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <Form {...loginForm}>
+                    <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                      <FormField
+                        control={loginForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter your email" 
+                                type="email"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={loginForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter your password" 
+                                type="password"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <Button 
+                        className="w-full mt-4" 
+                        type="submit"
+                      >
+                        Login
+                      </Button>
+                    </form>
+                  </Form>
+                  
                   <p className="text-center text-sm text-gray-500 mt-2">
-                    Don't have an account? <a href="#" className="text-storyforge-blue hover:underline">Sign up</a>
+                    Don't have an account? <button 
+                      className="text-storyforge-blue hover:underline" 
+                      onClick={() => {
+                        setAuthMode('register');
+                        setAuthError("");
+                      }}
+                    >
+                      Sign up
+                    </button>
                   </p>
                 </div>
-              </SheetContent>
-            </Sheet>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Hi, {username}!</span>
-              <Button variant="outline" size="sm" onClick={handleLogout}>Logout</Button>
-            </div>
-          )}
+              ) : (
+                <div className="space-y-4 py-4">
+                  {authError && (
+                    <Alert className="mb-4 border-red-200 bg-red-50 text-red-700">
+                      <AlertDescription>{authError}</AlertDescription>
+                    </Alert>
+                  )}
+                  
+                  <Form {...registerForm}>
+                    <form onSubmit={registerForm.handleSubmit(handleRegister)} className="space-y-4">
+                      <FormField
+                        control={registerForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Enter your email" 
+                                type="email"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={registerForm.control}
+                        name="username"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Username</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Choose a username" 
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <FormField
+                        control={registerForm.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Password</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="Create a password (min. 8 characters)" 
+                                type="password"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <Button 
+                        className="w-full mt-4" 
+                        type="submit"
+                      >
+                        Create Account
+                      </Button>
+                    </form>
+                  </Form>
+                  
+                  <p className="text-center text-sm text-gray-500 mt-2">
+                    Already have an account? <button 
+                      className="text-storyforge-blue hover:underline" 
+                      onClick={() => {
+                        setAuthMode('login');
+                        setAuthError("");
+                      }}
+                    >
+                      Log in
+                    </button>
+                  </p>
+                </div>
+              )}
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
       
@@ -531,34 +843,3 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
           className="flex items-center justify-center"
         >
           <Dice5 className="mr-2 h-4 w-4" />
-          Random Story
-        </Button>
-      </div>
-      
-      {isLoggedIn && (
-        <div className="mt-4 flex items-center justify-center space-x-2 border-t border-gray-100 pt-4">
-          <Button 
-            variant="outline" 
-            size="sm"
-            disabled={!isLoggedIn}
-            className="flex items-center gap-1"
-          >
-            <BookOpen className="h-4 w-4" />
-            <span>My Stories</span>
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            disabled={!isLoggedIn}
-            className="flex items-center gap-1"
-          >
-            <Check className="h-4 w-4" />
-            <span>Save Current Story</span>
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default StoryGenerator;

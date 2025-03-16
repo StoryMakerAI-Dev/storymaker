@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 interface PronounSelectorProps {
   value: string;
@@ -28,7 +29,7 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
 
   useEffect(() => {
     // Initialize custom value if value is not one of the predefined options
-    if (value !== "she/her" && value !== "he/him" && value !== "they/them" && value !== "custom") {
+    if (value !== "she/her" && value !== "he/him" && value !== "custom") {
       setSelectedOption("custom");
       setCustomValue(value);
     } else {
@@ -45,6 +46,7 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
       onChange(customValue);
     } else {
       // Default custom value if none exists
+      setCustomValue("they/them");
       onChange("they/them");
     }
   };
@@ -57,6 +59,12 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
     }
   };
 
+  // Function to set they/them as custom value
+  const setTheyThem = () => {
+    setCustomValue("they/them");
+    onChange("they/them");
+  };
+
   return (
     <div className={className}>
       <Label htmlFor="pronouns">{label}</Label>
@@ -67,19 +75,30 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
         <SelectContent>
           <SelectItem value="she/her">She/Her</SelectItem>
           <SelectItem value="he/him">He/Him</SelectItem>
-          <SelectItem value="they/them">They/Them</SelectItem>
           <SelectItem value="custom">Custom/Other</SelectItem>
         </SelectContent>
       </Select>
       
       {selectedOption === "custom" && (
-        <Input
-          id="custom-pronouns"
-          className="mt-2"
-          placeholder="Enter custom pronouns"
-          value={customValue}
-          onChange={handleCustomChange}
-        />
+        <div className="mt-2 space-y-2">
+          <Input
+            id="custom-pronouns"
+            placeholder="Enter custom pronouns"
+            value={customValue}
+            onChange={handleCustomChange}
+          />
+          
+          {customValue !== "they/them" && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={setTheyThem}
+              className="w-full text-xs"
+            >
+              Use They/Them
+            </Button>
+          )}
+        </div>
       )}
     </div>
   );
