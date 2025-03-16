@@ -45,6 +45,8 @@ const Index = () => {
             onStoryGenerated={handleStoryGenerated}
             isGenerating={isGenerating}
             setIsGenerating={setIsGenerating}
+            storyTitle={storyTitle}
+            storyContent={storyContent}
           />
         </section>
         
