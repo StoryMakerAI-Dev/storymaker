@@ -19,8 +19,17 @@ export const initialStoryParams: StoryParams = {
   additionalDetails: '',
 };
 
+export type SavedStory = {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+  params: StoryParams;
+};
+
 export type User = {
   email: string;
   username: string;
   password: string;
+  savedStories?: SavedStory[];
 };

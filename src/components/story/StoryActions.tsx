@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Wand2, Dice5, Share2, Mail } from 'lucide-react';
+import { Wand2, Dice5, Share2, Mail, Save } from 'lucide-react';
 import { StoryParams } from '@/types/story';
 import {
   DropdownMenu,
@@ -10,6 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import { saveStory, getLoggedInUser } from '@/utils/authUtils';
+import { v4 as uuidv4 } from 'uuid';
 
 interface StoryActionsProps {
   isGenerating: boolean;
@@ -17,6 +19,7 @@ interface StoryActionsProps {
   onRandomize: () => void;
   storyTitle?: string;
   storyContent?: string;
+  storyParams?: StoryParams;
 }
 
 const StoryActions: React.FC<StoryActionsProps> = ({
@@ -24,7 +27,8 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   onGenerate,
   onRandomize,
   storyTitle = "",
-  storyContent = ""
+  storyContent = "",
+  storyParams
 }) => {
   const { toast } = useToast();
   
@@ -69,7 +73,59 @@ const StoryActions: React.FC<StoryActionsProps> = ({
     }
   };
 
+  const handleSaveStory = () => {
+    if (!storyTitle || !storyContent) {
+      toast({
+        title: "Cannot save",
+        description: "You need to generate a story first",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const user = getLoggedInUser();
+    if (!user) {
+      toast({
+        title: "Login required",
+        description: "Please login to save stories",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Create a saved story object
+    const savedStory = {
+      id: uuidv4(),
+      title: storyTitle,
+      content: storyContent,
+      createdAt: new Date().toISOString(),
+      params: storyParams || {
+        ageGroup: 'children',
+        genre: 'fantasy',
+        characters: '',
+        pronouns: 'she/her',
+        setting: '',
+        theme: '',
+        additionalDetails: '',
+      }
+    };
+    
+    if (saveStory(savedStory)) {
+      toast({
+        title: "Story saved!",
+        description: "Your story has been saved to your library",
+      });
+    } else {
+      toast({
+        title: "Save failed",
+        description: "There was an error saving your story",
+        variant: "destructive",
+      });
+    }
+  };
+
   const isShareable = storyTitle !== "" && storyContent !== "";
+  const isLoggedIn = !!getLoggedInUser();
 
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -82,7 +138,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         {isGenerating ? "Creating Your Story..." : "Generate Story"}
       </Button>
       
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         <Button 
           variant="secondary"
           onClick={onRandomize}
@@ -90,7 +146,17 @@ const StoryActions: React.FC<StoryActionsProps> = ({
           className="flex items-center justify-center"
         >
           <Dice5 className="mr-2 h-4 w-4" />
-          Random Ideas
+          Random
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={handleSaveStory}
+          disabled={!isShareable || !isLoggedIn}
+          className="flex items-center justify-center"
+        >
+          <Save className="mr-2 h-4 w-4" />
+          Save
         </Button>
         
         <DropdownMenu>

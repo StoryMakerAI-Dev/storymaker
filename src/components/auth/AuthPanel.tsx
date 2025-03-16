@@ -2,26 +2,30 @@
 import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Library } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { getStoredUsers, storeUsers, saveCurrentUser, removeCurrentUser } from '@/utils/authUtils';
-import { User } from '@/types/story';
+import { User, SavedStory } from '@/types/story';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import VerificationForm from './VerificationForm';
+import SavedStories from './SavedStories';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type AuthPanelProps = {
   isLoggedIn: boolean;
   username: string;
   onLogin: (user: User) => void;
   onLogout: () => void;
+  onLoadStory?: (story: SavedStory) => void;
 };
 
 const AuthPanel: React.FC<AuthPanelProps> = ({ 
   isLoggedIn, 
   username, 
   onLogin, 
-  onLogout 
+  onLogout,
+  onLoadStory
 }) => {
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const [verificationMode, setVerificationMode] = useState(false);
@@ -82,6 +86,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
         email: verificationData.email,
         username: verificationData.username,
         password: verificationData.password,
+        savedStories: []
       };
       
       const users = getStoredUsers();
@@ -115,6 +120,16 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
     }
   };
 
+  const handleLoadStory = (story: SavedStory) => {
+    if (onLoadStory) {
+      onLoadStory(story);
+      toast({
+        title: "Story loaded",
+        description: "Your saved story has been loaded",
+      });
+    }
+  };
+
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -130,12 +145,14 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
         <SheetHeader>
           <SheetTitle>
             {verificationMode ? "Email Verification" : 
-             authMode === 'login' ? "Login to StoryMaker" : "Create an Account"}
+             !isLoggedIn ? (authMode === 'login' ? "Login to StoryMaker" : "Create an Account") :
+             "Your Account"}
           </SheetTitle>
           <SheetDescription>
             {verificationMode ? "Enter the verification code sent to your email" : 
-             authMode === 'login' ? "Sign in to save and share your stories" : 
-            "Create an account to save and share your stories"}
+             !isLoggedIn ? (authMode === 'login' ? "Sign in to save and share your stories" : 
+            "Create an account to save and share your stories") :
+            "Manage your stories and account"}
           </SheetDescription>
         </SheetHeader>
         
@@ -145,29 +162,33 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
             email={verificationData.email} 
           />
         ) : isLoggedIn ? (
-          <div className="space-y-4 py-4">
-            <div className="text-center">
-              <div className="font-medium text-xl">{username}</div>
-              <p className="text-muted-foreground">{currentUser?.email}</p>
-            </div>
+          <Tabs defaultValue="account" className="w-full mt-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="account">Account</TabsTrigger>
+              <TabsTrigger value="stories">My Stories</TabsTrigger>
+            </TabsList>
             
-            <div className="flex justify-center space-x-2 pt-4">
-              <Button 
-                variant="outline" 
-                className="flex items-center gap-1"
-              >
-                <BookOpen className="h-4 w-4" />
-                <span>My Stories</span>
-              </Button>
+            <TabsContent value="account" className="space-y-4 pt-4">
+              <div className="text-center">
+                <div className="font-medium text-xl">{username}</div>
+                <p className="text-muted-foreground">{currentUser?.email}</p>
+              </div>
               
-              <Button 
-                variant="destructive" 
-                onClick={handleLogout}
-              >
-                Logout
-              </Button>
-            </div>
-          </div>
+              <div className="flex justify-center space-x-2 pt-4">
+                <Button 
+                  variant="destructive" 
+                  onClick={handleLogout}
+                  className="w-full"
+                >
+                  Logout
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="stories" className="pt-4">
+              <SavedStories onSelectStory={handleLoadStory} />
+            </TabsContent>
+          </Tabs>
         ) : authMode === 'login' ? (
           <LoginForm 
             onSuccess={handleLogin} 

@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { BookText } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
-import { StoryParams, initialStoryParams, User } from '@/types/story';
+import { StoryParams, initialStoryParams, User, SavedStory } from '@/types/story';
 import { getLoggedInUser, removeCurrentUser } from '@/utils/authUtils';
 import { validateInputs, generateStoryContent, performGrammarCheck } from '@/utils/storyUtils';
 
@@ -15,12 +15,16 @@ interface StoryGeneratorProps {
   onStoryGenerated: (story: string, title: string) => void;
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
+  storyTitle: string;
+  storyContent: string;
 }
 
 const StoryGenerator: React.FC<StoryGeneratorProps> = ({ 
   onStoryGenerated, 
   isGenerating,
-  setIsGenerating
+  setIsGenerating,
+  storyTitle,
+  storyContent
 }) => {
   const [storyParams, setStoryParams] = useState<StoryParams>(initialStoryParams);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -55,6 +59,14 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     setIsLoggedIn(false);
     setUsername("");
     removeCurrentUser();
+  };
+
+  const handleLoadSavedStory = (story: SavedStory) => {
+    // Set the story parameters
+    setStoryParams(story.params);
+    
+    // Generate the story directly from saved content
+    onStoryGenerated(story.content, story.title);
   };
 
   const generateRandomStory = () => {
@@ -145,6 +157,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
             username={username}
             onLogin={handleLogin}
             onLogout={handleLogout}
+            onLoadStory={handleLoadSavedStory}
           />
         </div>
       </div>
@@ -159,6 +172,9 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
         isGenerating={isGenerating}
         onGenerate={() => generateStory()}
         onRandomize={generateRandomStory}
+        storyTitle={storyTitle}
+        storyContent={storyContent}
+        storyParams={storyParams}
       />
     </div>
   );
