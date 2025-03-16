@@ -70,7 +70,8 @@ export default {
 					yellow: '#FBBF24',
 					pink: '#EC4899',
 					teal: '#14B8A6',
-					background: '#F8FAFC'
+					background: '#F8FAFC',
+					text: '#1E293B'
 				}
 			},
 			borderRadius: {
@@ -132,7 +133,16 @@ export default {
 			fontFamily: {
 				sans: ['Inter var', 'sans-serif'],
 				display: ['Quicksand', 'sans-serif']
-			}
+			},
+			typography: {
+				DEFAULT: {
+					css: {
+						maxWidth: '65ch',
+						color: 'var(--tw-prose-body)',
+						lineHeight: '1.75',
+					},
+				},
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],

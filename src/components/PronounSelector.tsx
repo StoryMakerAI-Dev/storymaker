@@ -28,7 +28,7 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
 
   useEffect(() => {
     // Initialize custom value if value is not one of the predefined options
-    if (value !== "she/her" && value !== "he/him" && value !== "custom") {
+    if (value !== "she/her" && value !== "he/him" && value !== "they/them" && value !== "custom") {
       setSelectedOption("custom");
       setCustomValue(value);
     } else {
@@ -67,6 +67,7 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
         <SelectContent>
           <SelectItem value="she/her">She/Her</SelectItem>
           <SelectItem value="he/him">He/Him</SelectItem>
+          <SelectItem value="they/them">They/Them</SelectItem>
           <SelectItem value="custom">Custom/Other</SelectItem>
         </SelectContent>
       </Select>
@@ -75,7 +76,7 @@ const PronounSelector: React.FC<PronounSelectorProps> = ({
         <Input
           id="custom-pronouns"
           className="mt-2"
-          placeholder="Enter custom pronouns (e.g., they/them)"
+          placeholder="Enter custom pronouns"
           value={customValue}
           onChange={handleCustomChange}
         />
