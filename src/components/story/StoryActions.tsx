@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Wand2, Dice5, Share2, Mail, Save } from 'lucide-react';
 import { StoryParams } from '@/types/story';
@@ -31,6 +32,17 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   storyParams
 }) => {
   const { toast } = useToast();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  
+  // Check login status on component mount
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      const user = getCurrentUser();
+      setIsLoggedIn(!!user);
+    };
+    
+    checkLoginStatus();
+  }, []);
   
   const handleShare = (platform: string) => {
     const shareText = storyTitle 
@@ -138,7 +150,6 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   };
 
   const isShareable = storyTitle !== "" && storyContent !== "";
-  const isLoggedIn = await checkIsLoggedIn();
 
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
