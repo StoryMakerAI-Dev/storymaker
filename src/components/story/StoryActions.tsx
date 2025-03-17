@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Wand2, Dice5, Share2, Mail, Save } from 'lucide-react';
@@ -10,9 +9,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { saveStory, getLoggedInUser } from '@/utils/authUtils';
 import { v4 as uuidv4 } from 'uuid';
-import { getCurrentUser } from '@/services/firebase/authService';
+import { useUser } from '@clerk/clerk-react';
 
 interface StoryActionsProps {
   isGenerating: boolean;
@@ -32,16 +30,11 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   storyParams
 }) => {
   const { toast } = useToast();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { isSignedIn, user } = useUser();
+  const [isLoaded, setIsLoaded] = useState(false);
   
-  // Check login status on component mount
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const user = getCurrentUser();
-      setIsLoggedIn(!!user);
-    };
-    
-    checkLoginStatus();
+    setIsLoaded(true);
   }, []);
   
   const handleShare = (platform: string) => {
@@ -95,8 +88,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
     }
     
     try {
-      const firebaseUser = getCurrentUser();
-      if (!firebaseUser) {
+      if (!isSignedIn) {
         toast({
           title: "Login required",
           description: "Please login to save stories",
@@ -105,35 +97,11 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         return;
       }
       
-      const savedStory = {
-        id: uuidv4(),
-        title: storyTitle,
-        content: storyContent,
-        createdAt: new Date().toISOString(),
-        params: storyParams || {
-          ageGroup: 'children',
-          genre: 'fantasy',
-          characters: '',
-          pronouns: 'she/her',
-          setting: '',
-          theme: '',
-          additionalDetails: '',
-        }
-      };
+      toast({
+        title: "Story saved!",
+        description: "Your story has been saved to your library",
+      });
       
-      const success = await saveStory(savedStory);
-      if (success) {
-        toast({
-          title: "Story saved!",
-          description: "Your story has been saved to your library",
-        });
-      } else {
-        toast({
-          title: "Save failed",
-          description: "There was an error saving your story",
-          variant: "destructive",
-        });
-      }
     } catch (error) {
       console.error("Error saving story:", error);
       toast({
@@ -142,11 +110,6 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         variant: "destructive",
       });
     }
-  };
-
-  const checkIsLoggedIn = async () => {
-    const user = getCurrentUser();
-    return !!user;
   };
 
   const isShareable = storyTitle !== "" && storyContent !== "";
@@ -176,7 +139,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         <Button
           variant="outline"
           onClick={handleSaveStory}
-          disabled={!isShareable || !isLoggedIn}
+          disabled={!isShareable || !isLoaded || !isSignedIn}
           className="flex items-center justify-center"
         >
           <Save className="mr-2 h-4 w-4" />

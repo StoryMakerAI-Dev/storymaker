@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BookText } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { useUser } from '@clerk/clerk-react';
 
-import { StoryParams, initialStoryParams, User, SavedStory } from '@/types/story';
-import { getLoggedInUser, removeCurrentUser } from '@/utils/authUtils';
-import { validateInputs, generateStoryContent, performGrammarCheck } from '@/utils/storyUtils';
+import { StoryParams, initialStoryParams, SavedStory } from '@/types/story';
+import { validateInputs, generateStoryContent } from '@/utils/storyUtils';
 
 import StoryForm from './story/StoryForm';
 import StoryActions from './story/StoryActions';
-import AuthPanel from './auth/AuthPanel';
+import ClerkAuthPanel from './auth/ClerkAuthPanel';
 
 interface StoryGeneratorProps {
   onStoryGenerated: (story: string, title: string) => void;
@@ -26,25 +26,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   storyContent
 }) => {
   const [storyParams, setStoryParams] = useState<StoryParams>(initialStoryParams);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState("");
-  
-  // Check if user is logged in from Firebase on component mount
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const user = await getLoggedInUser();
-        if (user) {
-          setIsLoggedIn(true);
-          setUsername(user.username);
-        }
-      } catch (error) {
-        console.error("Auth check error:", error);
-      }
-    };
-    
-    checkAuth();
-  }, []);
+  const { isSignedIn, user } = useUser();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -55,16 +37,6 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
 
   const handleSelectChange = (name: string, value: string) => {
     setStoryParams((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleLogin = (user: User) => {
-    setIsLoggedIn(true);
-    setUsername(user.username);
-  };
-
-  const handleLogout = () => {
-    setIsLoggedIn(false);
-    setUsername("");
   };
 
   const handleLoadSavedStory = (story: SavedStory) => {
@@ -158,13 +130,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
         </div>
         
         <div className="flex items-center gap-4">
-          <AuthPanel 
-            isLoggedIn={isLoggedIn}
-            username={username}
-            onLogin={handleLogin}
-            onLogout={handleLogout}
-            onLoadStory={handleLoadSavedStory}
-          />
+          <ClerkAuthPanel onLoadStory={handleLoadSavedStory} />
         </div>
       </div>
       
