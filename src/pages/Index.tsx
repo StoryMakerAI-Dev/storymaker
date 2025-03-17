@@ -3,13 +3,17 @@ import React, { useState } from 'react';
 import Header from '@/components/Header';
 import StoryGenerator from '@/components/StoryGenerator';
 import StoryDisplay from '@/components/StoryDisplay';
+import StoryEditor from '@/components/story/StoryEditor';
+import HelpGuide from '@/components/HelpGuide';
 import Footer from '@/components/Footer';
 import { Sparkles } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 const Index = () => {
   const [storyContent, setStoryContent] = useState<string>('');
   const [storyTitle, setStoryTitle] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   const handleStoryGenerated = (story: string, title: string) => {
     setStoryContent(story);
@@ -20,12 +24,33 @@ const Index = () => {
     });
   };
 
+  const handleEditStory = () => {
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = (updatedTitle: string, updatedContent: string) => {
+    setStoryTitle(updatedTitle);
+    setStoryContent(updatedContent);
+    setIsEditing(false);
+    toast({
+      title: "Story updated!",
+      description: "Your edits have been saved.",
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-storyforge-background to-white">
       <Header />
       
       <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
-        <section className="text-center mb-12 max-w-3xl mx-auto">
+        <section className="text-center mb-12 max-w-3xl mx-auto relative">
+          <div className="absolute right-0 top-0">
+            <HelpGuide />
+          </div>
           <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 gradient-text">
             AI-Powered Story Creator
           </h1>
@@ -50,11 +75,23 @@ const Index = () => {
           />
         </section>
         
-        {storyContent && (
+        {storyContent && !isEditing && (
           <section className="mb-12 animate-fade-in">
             <StoryDisplay 
               title={storyTitle} 
-              content={storyContent} 
+              content={storyContent}
+              onEdit={handleEditStory}
+            />
+          </section>
+        )}
+        
+        {isEditing && (
+          <section className="mb-12 animate-fade-in">
+            <StoryEditor
+              title={storyTitle}
+              content={storyContent}
+              onSave={handleSaveEdit}
+              onCancel={handleCancelEdit}
             />
           </section>
         )}

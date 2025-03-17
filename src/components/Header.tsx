@@ -12,6 +12,7 @@ const Header = () => {
             <span className="text-storyforge-blue">Story</span>
             <span className="text-storyforge-purple">Maker</span>
             <span className="text-gray-700"> AI</span>
+            <span className="ml-2 text-sm bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Demo</span>
           </h1>
         </div>
         <div className="flex items-center gap-2">

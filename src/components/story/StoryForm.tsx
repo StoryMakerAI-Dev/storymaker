@@ -22,7 +22,7 @@ const StoryForm: React.FC<StoryFormProps> = ({
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div>
-          <Label htmlFor="ageGroup">Age Group</Label>
+          <Label htmlFor="ageGroup">Age Group (for readers)</Label>
           <Select 
             value={storyParams.ageGroup} 
             onValueChange={(value) => handleSelectChange('ageGroup', value)}
@@ -71,11 +71,33 @@ const StoryForm: React.FC<StoryFormProps> = ({
           />
         </div>
         
-        <PronounSelector
-          value={storyParams.pronouns}
-          onChange={(value) => handleSelectChange('pronouns', value)}
-          className="mt-4"
-        />
+        <div>
+          <Label htmlFor="numberOfCharacters">Number of Characters</Label>
+          <Select 
+            value={storyParams.numberOfCharacters?.toString() || "1"} 
+            onValueChange={(value) => handleSelectChange('numberOfCharacters', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select number of characters" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="1">1 Character</SelectItem>
+              <SelectItem value="2">2 Characters</SelectItem>
+              <SelectItem value="3">3 Characters</SelectItem>
+              <SelectItem value="4">4+ Characters</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label htmlFor="pronouns">Character Pronouns</Label>
+          <PronounSelector
+            value={storyParams.pronouns}
+            onChange={(value) => handleSelectChange('pronouns', value)}
+            className="mt-1"
+          />
+          <p className="text-xs text-gray-500 mt-1">These pronouns will be used for the main character(s)</p>
+        </div>
         
         <div>
           <Label htmlFor="setting">Setting</Label>
