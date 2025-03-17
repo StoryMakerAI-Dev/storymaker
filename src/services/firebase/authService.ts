@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendEmailVerification,
+  sendPasswordResetEmail,
   UserCredential,
   User as FirebaseUser
 } from 'firebase/auth';
@@ -74,4 +75,9 @@ export const isEmailVerified = (): boolean => {
 export const updateUserProfile = async (userId: string, data: Partial<User>): Promise<void> => {
   const userRef = doc(db, "users", userId);
   await updateDoc(userRef, data);
+};
+
+// Send password reset email
+export const sendPasswordReset = async (email: string): Promise<void> => {
+  return await sendPasswordResetEmail(auth, email);
 };

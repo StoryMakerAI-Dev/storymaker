@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -16,9 +17,10 @@ const loginSchema = z.object({
 type LoginFormProps = {
   onSuccess: (email: string, password: string) => void;
   onSwitchMode: () => void;
+  onForgotPassword: () => void;
 };
 
-const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchMode }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchMode, onForgotPassword }) => {
   const [authError, setAuthError] = React.useState("");
   
   // Login form
@@ -84,6 +86,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchMode }) => {
               </FormItem>
             )}
           />
+          
+          <div className="text-right">
+            <button 
+              type="button"
+              className="text-sm text-storyforge-blue hover:underline"
+              onClick={onForgotPassword}
+            >
+              Forgot password?
+            </button>
+          </div>
           
           <Button 
             className="w-full mt-4" 

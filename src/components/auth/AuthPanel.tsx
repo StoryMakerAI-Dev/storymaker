@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,10 @@ import { User, SavedStory } from '@/types/story';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import VerificationForm from './VerificationForm';
+import ForgotPasswordForm from './ForgotPasswordForm';
 import SavedStories from './SavedStories';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUser } from '@/services/firebase/authService';
+import { getCurrentUser, sendPasswordReset } from '@/services/firebase/authService';
 
 type AuthPanelProps = {
   isLoggedIn: boolean;
@@ -26,6 +28,15 @@ type AuthPanelProps = {
   onLoadStory?: (story: SavedStory) => void;
 };
 
+const AuthPanelMode = {
+  LOGIN: 'login',
+  REGISTER: 'register',
+  VERIFICATION: 'verification',
+  FORGOT_PASSWORD: 'forgot_password'
+} as const;
+
+type AuthPanelModeType = typeof AuthPanelMode[keyof typeof AuthPanelMode];
+
 const AuthPanel: React.FC<AuthPanelProps> = ({ 
   isLoggedIn, 
   username, 
@@ -33,8 +44,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
   onLogout,
   onLoadStory
 }) => {
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [verificationMode, setVerificationMode] = useState(false);
+  const [authMode, setAuthMode] = useState<AuthPanelModeType>(AuthPanelMode.LOGIN);
   const [verificationData, setVerificationData] = useState({
     email: "",
     username: "",
@@ -122,7 +132,7 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
         code: "000000"
       });
       
-      setVerificationMode(true);
+      setAuthMode(AuthPanelMode.VERIFICATION);
       
       toast({
         title: "Verification email sent",
@@ -144,13 +154,31 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
       description: "Your account has been created. Please check your email to verify your account.",
     });
     
-    setVerificationMode(false);
+    setAuthMode(AuthPanelMode.LOGIN);
     setVerificationData({
       email: "",
       username: "",
       password: "",
       code: ""
     });
+  };
+
+  const handlePasswordReset = async (email: string) => {
+    try {
+      await sendPasswordReset(email);
+      
+      toast({
+        title: "Reset link sent",
+        description: `A password reset link has been sent to ${email}. Please check your inbox.`,
+      });
+      
+      // Return to login screen after sending reset link
+      setAuthMode(AuthPanelMode.LOGIN);
+      
+    } catch (error: any) {
+      console.error("Password reset error:", error);
+      throw error;
+    }
   };
 
   const handleLoadStory = (story: SavedStory) => {
@@ -161,6 +189,20 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
         description: "Your saved story has been loaded",
       });
     }
+  };
+
+  const getSheetTitle = () => {
+    if (authMode === AuthPanelMode.VERIFICATION) return "Email Verification";
+    if (authMode === AuthPanelMode.FORGOT_PASSWORD) return "Reset Your Password";
+    if (!isLoggedIn) return authMode === AuthPanelMode.LOGIN ? "Login to StoryMaker" : "Create an Account";
+    return "Your Account";
+  };
+
+  const getSheetDescription = () => {
+    if (authMode === AuthPanelMode.VERIFICATION) return "Enter the verification code sent to your email";
+    if (authMode === AuthPanelMode.FORGOT_PASSWORD) return "We'll send you a link to reset your password";
+    if (!isLoggedIn) return authMode === AuthPanelMode.LOGIN ? "Sign in to save and share your stories" : "Create an account to save and share your stories";
+    return "Manage your stories and account";
   };
 
   return (
@@ -176,23 +218,19 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
       </SheetTrigger>
       <SheetContent className="overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>
-            {verificationMode ? "Email Verification" : 
-             !isLoggedIn ? (authMode === 'login' ? "Login to StoryMaker" : "Create an Account") :
-             "Your Account"}
-          </SheetTitle>
-          <SheetDescription>
-            {verificationMode ? "Enter the verification code sent to your email" : 
-             !isLoggedIn ? (authMode === 'login' ? "Sign in to save and share your stories" : 
-            "Create an account to save and share your stories") :
-            "Manage your stories and account"}
-          </SheetDescription>
+          <SheetTitle>{getSheetTitle()}</SheetTitle>
+          <SheetDescription>{getSheetDescription()}</SheetDescription>
         </SheetHeader>
         
-        {verificationMode ? (
+        {authMode === AuthPanelMode.VERIFICATION ? (
           <VerificationForm 
             onVerify={verifyCode} 
             email={verificationData.email} 
+          />
+        ) : authMode === AuthPanelMode.FORGOT_PASSWORD ? (
+          <ForgotPasswordForm 
+            onSendResetLink={handlePasswordReset}
+            onBackToLogin={() => setAuthMode(AuthPanelMode.LOGIN)}
           />
         ) : isLoggedIn ? (
           <Tabs defaultValue="account" className="w-full mt-6">
@@ -222,15 +260,16 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
               <SavedStories onSelectStory={handleLoadStory} />
             </TabsContent>
           </Tabs>
-        ) : authMode === 'login' ? (
+        ) : authMode === AuthPanelMode.LOGIN ? (
           <LoginForm 
             onSuccess={handleLogin} 
-            onSwitchMode={() => setAuthMode('register')} 
+            onSwitchMode={() => setAuthMode(AuthPanelMode.REGISTER)} 
+            onForgotPassword={() => setAuthMode(AuthPanelMode.FORGOT_PASSWORD)}
           />
         ) : (
           <RegisterForm 
             onStartVerification={startVerification} 
-            onSwitchMode={() => setAuthMode('login')} 
+            onSwitchMode={() => setAuthMode(AuthPanelMode.LOGIN)} 
           />
         )}
       </SheetContent>
