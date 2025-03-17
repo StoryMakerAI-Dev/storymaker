@@ -1,16 +1,22 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Library } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
-import { getStoredUsers, storeUsers, saveCurrentUser, removeCurrentUser } from '@/utils/authUtils';
+import { 
+  getLoggedInUser, 
+  loginUserWithFirebase, 
+  registerUserWithFirebase,
+  logoutUserWithFirebase, 
+  getSavedStories 
+} from '@/utils/authUtils';
 import { User, SavedStory } from '@/types/story';
 import LoginForm from './LoginForm';
 import RegisterForm from './RegisterForm';
 import VerificationForm from './VerificationForm';
 import SavedStories from './SavedStories';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getCurrentUser } from '@/services/firebase/authService';
 
 type AuthPanelProps = {
   isLoggedIn: boolean;
@@ -36,88 +42,115 @@ const AuthPanel: React.FC<AuthPanelProps> = ({
     code: ""
   });
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [stories, setStories] = useState<SavedStory[]>([]);
 
-  const handleLogin = (username: string) => {
-    const users = getStoredUsers();
-    const user = users.find(u => u.username === username);
-    if (user) {
+  useEffect(() => {
+    const checkAuth = async () => {
+      const user = await getLoggedInUser();
+      if (user) {
+        setCurrentUser(user);
+      }
+    };
+    
+    checkAuth();
+  }, []);
+  
+  useEffect(() => {
+    const loadStories = async () => {
+      if (isLoggedIn) {
+        const userStories = await getSavedStories();
+        setStories(userStories);
+      }
+    };
+    
+    loadStories();
+  }, [isLoggedIn]);
+
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const user = await loginUserWithFirebase(email, password);
       setCurrentUser(user);
       onLogin(user);
-    }
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    removeCurrentUser();
-    onLogout();
-    
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-  };
-
-  const startVerification = (email: string, username: string, password: string) => {
-    // Generate random 6-digit verification code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    setVerificationData({
-      email,
-      username,
-      password,
-      code
-    });
-    
-    setVerificationMode(true);
-    
-    toast({
-      title: "Verification code sent",
-      description: `A verification code (${code}) has been sent to ${email}`,
-    });
-    
-    // In a real app, this would be sent via email API
-    console.log(`Verification code: ${code} for ${email}`);
-  };
-
-  const verifyCode = (enteredCode: string) => {
-    if (enteredCode === verificationData.code) {
-      // Add new user
-      const newUser: User = {
-        email: verificationData.email,
-        username: verificationData.username,
-        password: verificationData.password,
-        savedStories: []
-      };
-      
-      const users = getStoredUsers();
-      users.push(newUser);
-      storeUsers(users);
-      
-      // Auto login
-      setCurrentUser(newUser);
-      saveCurrentUser(newUser);
-      onLogin(newUser);
-      
-      // Reset verification state
-      setVerificationMode(false);
-      setVerificationData({
-        email: "",
-        username: "",
-        password: "",
-        code: ""
-      });
       
       toast({
-        title: "Registration successful!",
-        description: `Welcome, ${newUser.username}!`,
+        title: "Login successful!",
+        description: `Welcome back, ${user.username}!`,
       });
-    } else {
+      
+      const userStories = await getSavedStories();
+      setStories(userStories);
+      
+    } catch (error) {
+      console.error("Login error:", error);
       toast({
-        title: "Invalid verification code",
-        description: "Please check the code and try again",
+        title: "Login failed",
+        description: "Invalid email or password",
         variant: "destructive",
       });
     }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logoutUserWithFirebase();
+      setCurrentUser(null);
+      onLogout();
+      setStories([]);
+      
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout failed",
+        description: "There was an error logging out",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const startVerification = async (email: string, username: string, password: string) => {
+    try {
+      await registerUserWithFirebase(email, username, password);
+      
+      setVerificationData({
+        email,
+        username,
+        password,
+        code: "000000"
+      });
+      
+      setVerificationMode(true);
+      
+      toast({
+        title: "Verification email sent",
+        description: `A verification email has been sent to ${email}. Please check your inbox.`,
+      });
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      toast({
+        title: "Registration failed",
+        description: error.message || "There was an error creating your account",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const verifyCode = (enteredCode: string) => {
+    toast({
+      title: "Account created",
+      description: "Your account has been created. Please check your email to verify your account.",
+    });
+    
+    setVerificationMode(false);
+    setVerificationData({
+      email: "",
+      username: "",
+      password: "",
+      code: ""
+    });
   };
 
   const handleLoadStory = (story: SavedStory) => {

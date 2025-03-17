@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -33,10 +32,31 @@ type SavedStoriesProps = {
 
 const SavedStories: React.FC<SavedStoriesProps> = ({ onSelectStory }) => {
   const { toast } = useToast();
-  const [stories, setStories] = useState<SavedStory[]>(getSavedStories());
-  const [selectedStory, setSelectedStory] = useState<SavedStory | null>(null);
+  const [stories, setStories] = useState<SavedStory[]>([]);
+  const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const storiesPerPage = 3;
+  
+  useEffect(() => {
+    const loadStories = async () => {
+      setLoading(true);
+      try {
+        const loadedStories = await getSavedStories();
+        setStories(loadedStories);
+      } catch (error) {
+        console.error("Error loading stories:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load stories",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadStories();
+  }, [toast]);
   
   // Get current page stories
   const indexOfLastStory = currentPage * storiesPerPage;
@@ -44,18 +64,28 @@ const SavedStories: React.FC<SavedStoriesProps> = ({ onSelectStory }) => {
   const currentStories = stories.slice(indexOfFirstStory, indexOfLastStory);
   const totalPages = Math.ceil(stories.length / storiesPerPage);
   
-  const handleDelete = (storyId: string) => {
-    if (deleteStory(storyId)) {
-      setStories(getSavedStories());
-      toast({
-        title: "Story deleted",
-        description: "Your story has been removed from your library",
-      });
-      
-      // Adjust current page if needed
-      if (currentStories.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1);
+  const handleDelete = async (storyId: string) => {
+    try {
+      const success = await deleteStory(storyId);
+      if (success) {
+        setStories(stories.filter(story => story.id !== storyId));
+        toast({
+          title: "Story deleted",
+          description: "Your story has been removed from your library",
+        });
+        
+        // Adjust current page if needed
+        if (currentStories.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
       }
+    } catch (error) {
+      console.error("Error deleting story:", error);
+      toast({
+        title: "Delete failed",
+        description: "Failed to delete story",
+        variant: "destructive",
+      });
     }
   };
   
@@ -80,6 +110,17 @@ const SavedStories: React.FC<SavedStoriesProps> = ({ onSelectStory }) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
   };
+  
+  if (loading) {
+    return (
+      <div className="p-6">
+        <div className="text-center">
+          <Book className="mx-auto h-12 w-12 text-gray-300" />
+          <h3 className="mt-2 text-lg font-medium">Loading saved stories...</h3>
+        </div>
+      </div>
+    );
+  }
   
   if (stories.length === 0) {
     return (

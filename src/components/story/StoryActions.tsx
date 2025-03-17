@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Wand2, Dice5, Share2, Mail, Save } from 'lucide-react';
@@ -12,6 +11,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { saveStory, getLoggedInUser } from '@/utils/authUtils';
 import { v4 as uuidv4 } from 'uuid';
+import { getCurrentUser } from '@/services/firebase/authService';
 
 interface StoryActionsProps {
   isGenerating: boolean;
@@ -33,7 +33,6 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   const { toast } = useToast();
   
   const handleShare = (platform: string) => {
-    // Create share text with title and a preview of the content
     const shareText = storyTitle 
       ? `Check out my story: "${storyTitle}"`
       : "Check out my AI-generated story!";
@@ -73,7 +72,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
     }
   };
 
-  const handleSaveStory = () => {
+  const handleSaveStory = async () => {
     if (!storyTitle || !storyContent) {
       toast({
         title: "Cannot save",
@@ -83,39 +82,48 @@ const StoryActions: React.FC<StoryActionsProps> = ({
       return;
     }
     
-    const user = getLoggedInUser();
-    if (!user) {
-      toast({
-        title: "Login required",
-        description: "Please login to save stories",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    // Create a saved story object
-    const savedStory = {
-      id: uuidv4(),
-      title: storyTitle,
-      content: storyContent,
-      createdAt: new Date().toISOString(),
-      params: storyParams || {
-        ageGroup: 'children',
-        genre: 'fantasy',
-        characters: '',
-        pronouns: 'she/her',
-        setting: '',
-        theme: '',
-        additionalDetails: '',
+    try {
+      const firebaseUser = getCurrentUser();
+      if (!firebaseUser) {
+        toast({
+          title: "Login required",
+          description: "Please login to save stories",
+          variant: "destructive",
+        });
+        return;
       }
-    };
-    
-    if (saveStory(savedStory)) {
-      toast({
-        title: "Story saved!",
-        description: "Your story has been saved to your library",
-      });
-    } else {
+      
+      const savedStory = {
+        id: uuidv4(),
+        title: storyTitle,
+        content: storyContent,
+        createdAt: new Date().toISOString(),
+        params: storyParams || {
+          ageGroup: 'children',
+          genre: 'fantasy',
+          characters: '',
+          pronouns: 'she/her',
+          setting: '',
+          theme: '',
+          additionalDetails: '',
+        }
+      };
+      
+      const success = await saveStory(savedStory);
+      if (success) {
+        toast({
+          title: "Story saved!",
+          description: "Your story has been saved to your library",
+        });
+      } else {
+        toast({
+          title: "Save failed",
+          description: "There was an error saving your story",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error saving story:", error);
       toast({
         title: "Save failed",
         description: "There was an error saving your story",
@@ -124,8 +132,13 @@ const StoryActions: React.FC<StoryActionsProps> = ({
     }
   };
 
+  const checkIsLoggedIn = async () => {
+    const user = getCurrentUser();
+    return !!user;
+  };
+
   const isShareable = storyTitle !== "" && storyContent !== "";
-  const isLoggedIn = !!getLoggedInUser();
+  const isLoggedIn = await checkIsLoggedIn();
 
   return (
     <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">

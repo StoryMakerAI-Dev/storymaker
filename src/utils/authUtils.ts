@@ -1,91 +1,97 @@
-
 import { User, SavedStory } from "../types/story";
+import { 
+  registerUser as firebaseRegister,
+  loginUser as firebaseLogin,
+  logoutUser as firebaseLogout,
+  getCurrentUser,
+  getUserData
+} from "../services/firebase/authService";
+import {
+  saveStory as firebaseSaveStory,
+  getSavedStories as firebaseGetSavedStories,
+  deleteStory as firebaseDeleteStory
+} from "../services/firebase/storyService";
 
-// Get users from localStorage or initialize empty array
+// Local user cache
+let currentUserCache: User | null = null;
+
+// Get current user (with localStorage fallback for transition period)
+export const getLoggedInUser = async (): Promise<User | null> => {
+  // If we have a cached user, return it
+  if (currentUserCache) return currentUserCache;
+  
+  // Try to get user from Firebase
+  const firebaseUser = getCurrentUser();
+  if (firebaseUser) {
+    try {
+      const userData = await getUserData(firebaseUser.uid);
+      currentUserCache = userData;
+      return userData;
+    } catch (error) {
+      console.error("Error getting user data:", error);
+    }
+  }
+  
+  // Fallback to localStorage during transition
+  const loggedInUser = localStorage.getItem('storyMakerCurrentUser');
+  return loggedInUser ? JSON.parse(loggedInUser) : null;
+};
+
+// For backward compatibility
 export const getStoredUsers = (): User[] => {
   const storedUsers = localStorage.getItem('storyMakerUsers');
   return storedUsers ? JSON.parse(storedUsers) : [];
 };
 
-// Store users in localStorage
+// For backward compatibility
 export const storeUsers = (users: User[]) => {
   localStorage.setItem('storyMakerUsers', JSON.stringify(users));
 };
 
-// Check if a user is already logged in
-export const getLoggedInUser = (): User | null => {
-  const loggedInUser = localStorage.getItem('storyMakerCurrentUser');
-  return loggedInUser ? JSON.parse(loggedInUser) : null;
-};
-
-// Save the current user to localStorage
+// Save the current user to cache
 export const saveCurrentUser = (user: User) => {
+  currentUserCache = user;
+  // Also keep localStorage for backward compatibility
   localStorage.setItem('storyMakerCurrentUser', JSON.stringify(user));
 };
 
-// Remove the current user from localStorage
+// Remove the current user from cache
 export const removeCurrentUser = () => {
+  currentUserCache = null;
   localStorage.removeItem('storyMakerCurrentUser');
 };
 
-// Save a story for the current user
-export const saveStory = (story: SavedStory): boolean => {
-  const currentUser = getLoggedInUser();
-  if (!currentUser) return false;
-  
-  // Initialize savedStories array if it doesn't exist
-  if (!currentUser.savedStories) {
-    currentUser.savedStories = [];
-  }
-  
-  // Check if story already exists (by id)
-  const existingIndex = currentUser.savedStories.findIndex(s => s.id === story.id);
-  if (existingIndex >= 0) {
-    // Update existing story
-    currentUser.savedStories[existingIndex] = story;
-  } else {
-    // Add new story
-    currentUser.savedStories.push(story);
-  }
-  
-  // Update user in localStorage
-  saveCurrentUser(currentUser);
-  
-  // Also update user in users array
-  const users = getStoredUsers();
-  const userIndex = users.findIndex(u => u.username === currentUser.username);
-  if (userIndex >= 0) {
-    users[userIndex] = currentUser;
-    storeUsers(users);
-  }
-  
-  return true;
+// Login user with Firebase
+export const loginUserWithFirebase = async (email: string, password: string): Promise<User> => {
+  const user = await firebaseLogin(email, password);
+  saveCurrentUser(user);
+  return user;
 };
 
-// Get all saved stories for the current user
-export const getSavedStories = (): SavedStory[] => {
-  const currentUser = getLoggedInUser();
-  if (!currentUser || !currentUser.savedStories) return [];
-  return currentUser.savedStories;
+// Register user with Firebase
+export const registerUserWithFirebase = async (email: string, username: string, password: string): Promise<User> => {
+  const user = await firebaseRegister(email, password, username);
+  saveCurrentUser(user);
+  return user;
 };
 
-// Delete a story by id
-export const deleteStory = (storyId: string): boolean => {
-  const currentUser = getLoggedInUser();
-  if (!currentUser || !currentUser.savedStories) return false;
-  
-  currentUser.savedStories = currentUser.savedStories.filter(s => s.id !== storyId);
-  
-  // Update user in localStorage
-  saveCurrentUser(currentUser);
-  
-  // Also update user in users array
-  const users = getStoredUsers();
-  const userIndex = users.findIndex(u => u.username === currentUser.username);
-  if (userIndex >= 0) {
-    users[userIndex] = currentUser;
-    storeUsers(users);
-  }
-  
-  return true;
+// Logout user with Firebase
+export const logoutUserWithFirebase = async (): Promise<void> => {
+  await firebaseLogout();
+  removeCurrentUser();
+};
+
+// Save a story with Firebase
+export const saveStory = async (story: SavedStory): Promise<boolean> => {
+  return await firebaseSaveStory(story);
+};
+
+// Get all saved stories with Firebase
+export const getSavedStories = async (): Promise<SavedStory[]> => {
+  return await firebaseGetSavedStories();
+};
+
+// Delete a story with Firebase
+export const deleteStory = async (storyId: string): Promise<boolean> => {
+  return await firebaseDeleteStory(storyId);
 };

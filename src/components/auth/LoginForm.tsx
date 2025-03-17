@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -7,8 +6,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from '@/components/ui/use-toast';
-import { getStoredUsers, saveCurrentUser } from '@/utils/authUtils';
 
 // Login schema
 const loginSchema = z.object({
@@ -17,7 +14,7 @@ const loginSchema = z.object({
 });
 
 type LoginFormProps = {
-  onSuccess: (username: string) => void;
+  onSuccess: (email: string, password: string) => void;
   onSwitchMode: () => void;
 };
 
@@ -33,29 +30,13 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess, onSwitchMode }) => {
     },
   });
 
-  const handleLogin = (data: z.infer<typeof loginSchema>) => {
+  const handleLogin = async (data: z.infer<typeof loginSchema>) => {
     setAuthError("");
-    const users = getStoredUsers();
-    const user = users.find(u => u.email === data.email);
-    
-    if (!user) {
-      setAuthError("No account found with this email address");
-      return;
+    try {
+      onSuccess(data.email, data.password);
+    } catch (error: any) {
+      setAuthError(error.message || "Login failed");
     }
-    
-    if (user.password !== data.password) {
-      setAuthError("Incorrect password");
-      return;
-    }
-    
-    // Successful login
-    saveCurrentUser(user);
-    onSuccess(user.username);
-    
-    toast({
-      title: "Login successful!",
-      description: `Welcome back, ${user.username}!`,
-    });
   };
 
   return (

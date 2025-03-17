@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BookText } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
@@ -30,13 +29,21 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [username, setUsername] = useState("");
   
-  // Check if user is logged in from localStorage on component mount
+  // Check if user is logged in from Firebase on component mount
   useEffect(() => {
-    const loggedInUser = getLoggedInUser();
-    if (loggedInUser) {
-      setIsLoggedIn(true);
-      setUsername(loggedInUser.username);
-    }
+    const checkAuth = async () => {
+      try {
+        const user = await getLoggedInUser();
+        if (user) {
+          setIsLoggedIn(true);
+          setUsername(user.username);
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      }
+    };
+    
+    checkAuth();
   }, []);
 
   const handleInputChange = (
@@ -58,7 +65,6 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   const handleLogout = () => {
     setIsLoggedIn(false);
     setUsername("");
-    removeCurrentUser();
   };
 
   const handleLoadSavedStory = (story: SavedStory) => {
