@@ -1,16 +1,17 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Book, Download, Sparkles, X } from 'lucide-react';
+import { Book, Download, Sparkles, X, PencilLine } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
 
 interface StoryDisplayProps {
   title: string;
   content: string;
+  onEdit?: () => void;
 }
 
-const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content }) => {
+const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, onEdit }) => {
   const { toast } = useToast();
   const storyRef = useRef<HTMLDivElement>(null);
   const [bookMode, setBookMode] = useState<boolean>(false);
@@ -141,14 +142,27 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content }) => {
             </label>
           </div>
           
-          <Button 
-            variant="outline" 
-            className="flex items-center gap-2 bg-white hover:bg-gray-50"
-            onClick={handleDownload}
-          >
-            <Download className="h-4 w-4" />
-            <span>Download Story</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            {onEdit && (
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 bg-white hover:bg-gray-50"
+                onClick={onEdit}
+              >
+                <PencilLine className="h-4 w-4" />
+                <span>Edit Story</span>
+              </Button>
+            )}
+            
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2 bg-white hover:bg-gray-50"
+              onClick={handleDownload}
+            >
+              <Download className="h-4 w-4" />
+              <span>Download Story</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
