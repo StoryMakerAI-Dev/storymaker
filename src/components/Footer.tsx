@@ -23,11 +23,8 @@ const Footer = () => {
             </a>
             <span className="text-gray-400">|</span>
             <div className="flex items-center gap-1 text-xs md:text-sm text-gray-500">
-              <span>⚠️Disclaimer: Story Maker AI is designed to inspire creativity and assist in generating stories for personal enjoyment, creative projects, and entertainment purposes. It is not intended to be used for academic or school assignments. Using this tool for schoolwork may violate your institution’s policies and could result in disciplinary action. Please use the tool responsibly and adhere to your school’s guidelines.⚠️ 
-
-
-
-Made by Jacob and with 💗</span>
+              <span className="text-center">⚠️Disclaimer: Story Maker AI is designed to inspire creativity and assist in generating stories for personal enjoyment, creative projects, and entertainment purposes. It is not intended to be used for academic or school assignments. Using this tool for schoolwork may violate your institution’s policies and could result in disciplinary action. Please use the tool responsibly and adhere to your school’s guidelines.
+⚠️ Made by Jacob and with 💗</span>
               <Heart className="h-3 w-3 text-storyforge-pink fill-storyforge-pink" />
               <span></span>
             </div>
