@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Wand2, Dice5, Share2, Mail, Save } from 'lucide-react';
 import { StoryParams } from '@/types/story';
@@ -10,9 +10,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
-import { saveStory, getLoggedInUser } from '@/utils/authUtils';
 import { v4 as uuidv4 } from 'uuid';
-import { getCurrentUser } from '@/services/firebase/authService';
+import { useAuth } from '@clerk/clerk-react';
+import { saveStory } from '@/utils/clerkAuthUtils';
 
 interface StoryActionsProps {
   isGenerating: boolean;
@@ -32,17 +32,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   storyParams
 }) => {
   const { toast } = useToast();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  // Check login status on component mount
-  useEffect(() => {
-    const checkLoginStatus = async () => {
-      const user = getCurrentUser();
-      setIsLoggedIn(!!user);
-    };
-    
-    checkLoginStatus();
-  }, []);
+  const { isSignedIn } = useAuth();
   
   const handleShare = (platform: string) => {
     const shareText = storyTitle 
@@ -95,8 +85,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
     }
     
     try {
-      const firebaseUser = getCurrentUser();
-      if (!firebaseUser) {
+      if (!isSignedIn) {
         toast({
           title: "Login required",
           description: "Please login to save stories",
@@ -144,11 +133,6 @@ const StoryActions: React.FC<StoryActionsProps> = ({
     }
   };
 
-  const checkIsLoggedIn = async () => {
-    const user = getCurrentUser();
-    return !!user;
-  };
-
   const isShareable = storyTitle !== "" && storyContent !== "";
 
   return (
@@ -176,7 +160,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         <Button
           variant="outline"
           onClick={handleSaveStory}
-          disabled={!isShareable || !isLoggedIn}
+          disabled={!isShareable || !isSignedIn}
           className="flex items-center justify-center"
         >
           <Save className="mr-2 h-4 w-4" />
