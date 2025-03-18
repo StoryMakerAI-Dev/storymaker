@@ -7,7 +7,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { getStoredUsers } from '@/utils/authUtils';
 
 // Registration schema
@@ -15,10 +15,11 @@ const registerSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(8, "Password must be at least 8 characters"),
+  phoneNumber: z.string().optional(),
 });
 
 type RegisterFormProps = {
-  onStartVerification: (email: string, username: string, password: string) => void;
+  onStartVerification: (email: string, username: string, password: string, phoneNumber?: string) => void;
   onSwitchMode: () => void;
 };
 
@@ -35,6 +36,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
       email: "",
       username: "",
       password: "",
+      phoneNumber: "",
     },
   });
 
@@ -49,7 +51,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
     }
     
     // Start verification process
-    onStartVerification(data.email, data.username, data.password);
+    onStartVerification(data.email, data.username, data.password, data.phoneNumber);
   };
 
   return (
@@ -107,6 +109,24 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
                   <Input 
                     placeholder="Create a password (min. 8 characters)" 
                     type="password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={registerForm.control}
+            name="phoneNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Phone Number (Optional)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="Enter your phone number (optional)" 
+                    type="tel"
                     {...field}
                   />
                 </FormControl>
