@@ -15,11 +15,11 @@ const registerSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   username: z.string().min(3, "Username must be at least 3 characters"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  phoneNumber: z.string().optional(),
+  phoneNumber: z.string().min(10, "Please enter a valid phone number"),
 });
 
 type RegisterFormProps = {
-  onStartVerification: (email: string, username: string, password: string, phoneNumber?: string) => void;
+  onStartVerification: (email: string, username: string, password: string, phoneNumber: string) => void;
   onSwitchMode: () => void;
 };
 
@@ -122,10 +122,10 @@ const RegisterForm: React.FC<RegisterFormProps> = ({
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number (Optional)</FormLabel>
+                <FormLabel>Phone Number</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="Enter your phone number (optional)" 
+                    placeholder="Enter your phone number" 
                     type="tel"
                     {...field}
                   />
