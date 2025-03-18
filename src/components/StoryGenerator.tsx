@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { BookText } from 'lucide-react';
-import { toast } from '@/components/ui/toast';
+import { toast } from '@/hooks/use-toast';
 import { useUser } from '@clerk/clerk-react';
 
 import { StoryParams, initialStoryParams, SavedStory } from '@/types/story';
