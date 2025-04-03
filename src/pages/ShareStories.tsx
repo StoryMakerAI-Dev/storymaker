@@ -7,6 +7,23 @@ import { Music, Image, Mic } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 const ShareStories = () => {
+  const handleExternalLink = (service: string) => {
+    switch(service) {
+      case 'TextMakerAI':
+        window.open("https://textmaker.storyforge.ai", "_blank");
+        break;
+      case 'PictureMakerAI':
+        window.open("https://picturemaker.storyforge.ai", "_blank");
+        break;
+      default:
+        toast({
+          title: "Coming Soon",
+          description: "This feature is currently in development.",
+          variant: "default"
+        });
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-storyforge-background to-white">
       <Header />
@@ -32,12 +49,7 @@ const ShareStories = () => {
             <p className="text-gray-600 text-center mb-4">Enhance your stories with music and sound effects</p>
             <Button 
               className="w-full"
-              onClick={() => {
-                toast({
-                  title: "Coming soon!",
-                  description: "TextMaker AI will be available soon for sound integration."
-                });
-              }}
+              onClick={() => handleExternalLink('TextMakerAI')}
             >
               Try TextMaker AI
             </Button>
@@ -53,12 +65,7 @@ const ShareStories = () => {
             <p className="text-gray-600 text-center mb-4">Illustrate your stories with AI-generated images</p>
             <Button 
               className="w-full"
-              onClick={() => {
-                toast({
-                  title: "Coming soon!",
-                  description: "PictureMaker AI will be available soon for image generation."
-                });
-              }}
+              onClick={() => handleExternalLink('PictureMakerAI')}
             >
               Try PictureMaker AI
             </Button>
@@ -74,12 +81,7 @@ const ShareStories = () => {
             <p className="text-gray-600 text-center mb-4">Convert your stories to spoken audio narration</p>
             <Button 
               className="w-full"
-              onClick={() => {
-                toast({
-                  title: "Coming soon!",
-                  description: "TextMaker AI will be available soon for text-to-speech."
-                });
-              }}
+              onClick={() => handleExternalLink('TextMakerAI')}
             >
               Try TextMaker AI
             </Button>
