@@ -30,7 +30,7 @@ const Footer = () => {
               variant="outline" 
               size="sm" 
               className="gap-1 text-storyforge-purple hover:text-storyforge-blue hover:border-storyforge-blue"
-              onClick={() => window.open("https://example.com/share-stories", "_blank")}
+              onClick={() => window.open("/share-stories", "_blank")}
             >
               Share Your Stories
               <ExternalLink className="h-3 w-3" />

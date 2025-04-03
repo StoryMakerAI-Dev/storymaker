@@ -2,14 +2,15 @@
 import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Library } from 'lucide-react';
+import { Library, LogOut } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 import { 
   useAuth, 
   useUser, 
   UserButton, 
   SignInButton, 
-  SignUpButton 
+  SignUpButton,
+  useClerk
 } from '@clerk/clerk-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import SavedStories from './SavedStories';
@@ -22,6 +23,7 @@ type ClerkAuthPanelProps = {
 const ClerkAuthPanel: React.FC<ClerkAuthPanelProps> = ({ onLoadStory }) => {
   const { isSignedIn } = useAuth();
   const { user } = useUser();
+  const { signOut } = useClerk();
   const [stories, setStories] = useState<SavedStory[]>([]);
 
   const handleLoadStory = (story: SavedStory) => {
@@ -32,6 +34,14 @@ const ClerkAuthPanel: React.FC<ClerkAuthPanelProps> = ({ onLoadStory }) => {
         description: "Your saved story has been loaded",
       });
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out successfully",
+      description: "You have been signed out of your account"
+    });
   };
 
   const getSheetTitle = () => {
@@ -74,8 +84,19 @@ const ClerkAuthPanel: React.FC<ClerkAuthPanelProps> = ({ onLoadStory }) => {
                 <p className="text-muted-foreground">{user?.primaryEmailAddress?.emailAddress}</p>
               </div>
               
-              <div className="flex justify-center space-x-2 pt-4">
-                <UserButton afterSignOutUrl="/" />
+              <div className="flex flex-col gap-4 pt-4">
+                <div className="flex justify-center">
+                  <UserButton afterSignOutUrl="/" />
+                </div>
+                
+                <Button 
+                  variant="destructive" 
+                  className="w-full flex items-center justify-center gap-2"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </Button>
               </div>
             </TabsContent>
             
@@ -92,6 +113,21 @@ const ClerkAuthPanel: React.FC<ClerkAuthPanelProps> = ({ onLoadStory }) => {
             <SignUpButton mode="modal">
               <Button variant="outline" className="w-full">Create Account</Button>
             </SignUpButton>
+            
+            <div className="mt-4 text-center">
+              <Button 
+                variant="link" 
+                className="text-storyforge-blue"
+                onClick={() => {
+                  toast({
+                    title: "Coming soon!",
+                    description: "Redemption code feature will be available soon."
+                  });
+                }}
+              >
+                Do you have a Code to use? CLICK HERE
+              </Button>
+            </div>
           </div>
         )}
       </SheetContent>
