@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -46,7 +45,9 @@ const ShareStories = () => {
               </div>
             </div>
             <h2 className="text-xl font-semibold text-center mb-2">Add Sound</h2>
-            <p className="text-gray-600 text-center mb-4">Enhance your stories with music and sound effects</p>
+            <p className="text-gray-600 text-center mb-4">
+              Transform your stories with immersive audio experiences. Add music, sound effects, and voice narration to bring your narratives to life with our AI-powered text-to-sound technology.
+            </p>
             <Button 
               className="w-full"
               onClick={() => handleExternalLink('TextMakerAI')}
