@@ -10,7 +10,7 @@ const ShareStories = () => {
   const handleExternalLink = (service: string) => {
     switch(service) {
       case 'TextMakerAI':
-        window.open("https://textmaker.storyforge.ai", "_blank");
+        window.open("https://preview--textmaker.lovable.app/", "_blank");
         break;
       case 'PictureMakerAI':
         window.open("https://picturemaker.storyforge.ai", "_blank");
@@ -115,3 +115,4 @@ const ShareStories = () => {
 };
 
 export default ShareStories;
+
