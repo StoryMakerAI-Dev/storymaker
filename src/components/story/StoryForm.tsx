@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import PronounSelector from '../PronounSelector';
 import { StoryParams } from '@/types/story';
 import { Button } from "@/components/ui/button";
-import { PlusCircle, User } from 'lucide-react';
+import { PlusCircle, User, Plus } from 'lucide-react';
 
 interface StoryFormProps {
   storyParams: StoryParams;
@@ -29,6 +29,8 @@ const StoryForm: React.FC<StoryFormProps> = ({
   handleInputChange,
   handleSelectChange
 }) => {
+  const [customCharacter, setCustomCharacter] = useState('');
+
   const handleAddFamousCharacter = (character: string) => {
     const currentCharacters = storyParams.characters;
     const newCharacters = currentCharacters 
@@ -43,6 +45,20 @@ const StoryForm: React.FC<StoryFormProps> = ({
     } as React.ChangeEvent<HTMLInputElement>;
     
     handleInputChange(event);
+  };
+
+  const handleAddCustomCharacter = () => {
+    if (customCharacter.trim()) {
+      handleAddFamousCharacter(customCharacter.trim());
+      setCustomCharacter('');
+    }
+  };
+
+  const handleCustomCharacterKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddCustomCharacter();
+    }
   };
 
   return (
@@ -120,6 +136,27 @@ const StoryForm: React.FC<StoryFormProps> = ({
                 {character.name}
               </Button>
             ))}
+          </div>
+          <div className="mt-3">
+            <p className="text-gray-500 text-xs mb-2">Add your own famous character</p>
+            <div className="flex gap-2">
+              <Input
+                value={customCharacter}
+                onChange={(e) => setCustomCharacter(e.target.value)}
+                placeholder="Enter a custom character"
+                className="text-xs h-8"
+                onKeyDown={handleCustomCharacterKeyDown}
+              />
+              <Button 
+                size="sm" 
+                className="h-8 px-3 shrink-0"
+                onClick={handleAddCustomCharacter}
+                disabled={!customCharacter.trim()}
+              >
+                <Plus className="h-4 w-4" />
+                Add
+              </Button>
+            </div>
           </div>
         </div>
         
