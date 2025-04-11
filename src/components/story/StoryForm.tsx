@@ -8,6 +8,7 @@ import PronounSelector from '../PronounSelector';
 import { StoryParams } from '@/types/story';
 import { Button } from "@/components/ui/button";
 import { PlusCircle, User, Plus } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface StoryFormProps {
   storyParams: StoryParams;
@@ -30,6 +31,7 @@ const StoryForm: React.FC<StoryFormProps> = ({
   handleSelectChange
 }) => {
   const [customCharacter, setCustomCharacter] = useState('');
+  const [characterPronouns, setCharacterPronouns] = useState<string[]>(['she/her']);
 
   const handleAddFamousCharacter = (character: string) => {
     const currentCharacters = storyParams.characters;
@@ -60,6 +62,42 @@ const StoryForm: React.FC<StoryFormProps> = ({
       handleAddCustomCharacter();
     }
   };
+
+  // Handle changing the number of characters and update the pronouns array accordingly
+  const handleNumberOfCharactersChange = (value: string) => {
+    handleSelectChange('numberOfCharacters', value);
+    const numChars = parseInt(value);
+    
+    // Update the character pronouns array to match the number of characters
+    const newPronouns = [...characterPronouns];
+    while (newPronouns.length < numChars) {
+      newPronouns.push('they/them'); // Default for new characters
+    }
+    
+    setCharacterPronouns(newPronouns.slice(0, numChars));
+    
+    // Update the main pronouns string by joining all character pronouns
+    const pronounsString = newPronouns.slice(0, numChars).join(',');
+    handleSelectChange('pronouns', pronounsString);
+  };
+
+  // Handle individual character pronoun changes
+  const handleCharacterPronounChange = (index: number, value: string) => {
+    const newPronouns = [...characterPronouns];
+    newPronouns[index] = value;
+    setCharacterPronouns(newPronouns);
+    
+    // Update the main pronouns string
+    handleSelectChange('pronouns', newPronouns.join(','));
+  };
+
+  // Initialize pronouns from storyParams if needed
+  React.useEffect(() => {
+    if (storyParams.pronouns && storyParams.pronouns.includes(',')) {
+      const pronounsArray = storyParams.pronouns.split(',');
+      setCharacterPronouns(pronounsArray);
+    }
+  }, []);
 
   return (
     <>
@@ -164,7 +202,7 @@ const StoryForm: React.FC<StoryFormProps> = ({
           <Label htmlFor="numberOfCharacters">Number of Characters</Label>
           <Select 
             value={storyParams.numberOfCharacters?.toString() || "1"} 
-            onValueChange={(value) => handleSelectChange('numberOfCharacters', value)}
+            onValueChange={handleNumberOfCharactersChange}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select number of characters" />
@@ -179,13 +217,31 @@ const StoryForm: React.FC<StoryFormProps> = ({
         </div>
         
         <div>
-          <Label htmlFor="pronouns">Character Pronouns</Label>
-          <PronounSelector
-            value={storyParams.pronouns}
-            onChange={(value) => handleSelectChange('pronouns', value)}
-            className="mt-1"
-          />
-          <p className="text-xs text-gray-500 mt-1">These pronouns will be used for the main character(s)</p>
+          <Label className="mb-2 block">Character Pronouns</Label>
+          {parseInt(storyParams.numberOfCharacters?.toString() || "1") > 1 ? (
+            <div className="space-y-4">
+              {Array.from({length: parseInt(storyParams.numberOfCharacters?.toString() || "1")}).map((_, index) => (
+                <div key={index} className="bg-gray-50 p-3 rounded-md border border-gray-100">
+                  <Label className="text-sm mb-2 block">Character {index + 1}</Label>
+                  <PronounSelector
+                    value={characterPronouns[index] || 'they/them'}
+                    onChange={(value) => handleCharacterPronounChange(index, value)}
+                    className="mt-1"
+                  />
+                </div>
+              ))}
+              <p className="text-xs text-gray-500">These pronouns will be used for each character in order</p>
+            </div>
+          ) : (
+            <>
+              <PronounSelector
+                value={storyParams.pronouns}
+                onChange={(value) => handleSelectChange('pronouns', value)}
+                className="mt-1"
+              />
+              <p className="text-xs text-gray-500 mt-1">These pronouns will be used for the main character</p>
+            </>
+          )}
         </div>
         
         <div>
