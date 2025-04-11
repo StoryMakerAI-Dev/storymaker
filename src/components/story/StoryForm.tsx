@@ -31,7 +31,7 @@ const StoryForm: React.FC<StoryFormProps> = ({
   handleSelectChange
 }) => {
   const [customCharacter, setCustomCharacter] = useState('');
-  const [characterPronouns, setCharacterPronouns] = useState<string[]>(['she/her']);
+  const [characterPronouns, setCharacterPronouns] = useState<string[]>(['they/them']);
 
   const handleAddFamousCharacter = (character: string) => {
     const currentCharacters = storyParams.characters;
@@ -96,8 +96,10 @@ const StoryForm: React.FC<StoryFormProps> = ({
     if (storyParams.pronouns && storyParams.pronouns.includes(',')) {
       const pronounsArray = storyParams.pronouns.split(',');
       setCharacterPronouns(pronounsArray);
+    } else if (storyParams.pronouns) {
+      setCharacterPronouns([storyParams.pronouns]);
     }
-  }, []);
+  }, [storyParams.pronouns]);
 
   return (
     <>

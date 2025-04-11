@@ -16,7 +16,7 @@ export const initialStoryParams: StoryParams = {
   genre: 'fantasy',
   characters: '',
   numberOfCharacters: 1,
-  pronouns: 'she/her',
+  pronouns: 'they/them',
   setting: '',
   theme: '',
   additionalDetails: '',
