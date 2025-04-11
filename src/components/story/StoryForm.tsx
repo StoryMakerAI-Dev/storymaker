@@ -6,6 +6,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PronounSelector from '../PronounSelector';
 import { StoryParams } from '@/types/story';
+import { Button } from "@/components/ui/button";
+import { PlusCircle, User } from 'lucide-react';
 
 interface StoryFormProps {
   storyParams: StoryParams;
@@ -13,11 +15,36 @@ interface StoryFormProps {
   handleSelectChange: (name: string, value: string) => void;
 }
 
+const famousCharacters = [
+  { name: "Albert Einstein", description: "Brilliant physicist and Nobel Prize winner" },
+  { name: "Marie Curie", description: "Pioneering scientist and two-time Nobel Prize winner" },
+  { name: "Leonardo da Vinci", description: "Renaissance polymath, artist, and inventor" },
+  { name: "William Shakespeare", description: "Legendary playwright and poet" },
+  { name: "Cleopatra", description: "Last active ruler of the Ptolemaic Kingdom of Egypt" },
+  { name: "Amelia Earhart", description: "Aviation pioneer and author" }
+];
+
 const StoryForm: React.FC<StoryFormProps> = ({
   storyParams,
   handleInputChange,
   handleSelectChange
 }) => {
+  const handleAddFamousCharacter = (character: string) => {
+    const currentCharacters = storyParams.characters;
+    const newCharacters = currentCharacters 
+      ? `${currentCharacters}, ${character}` 
+      : character;
+    
+    const event = {
+      target: {
+        name: 'characters',
+        value: newCharacters
+      }
+    } as React.ChangeEvent<HTMLInputElement>;
+    
+    handleInputChange(event);
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
@@ -69,6 +96,31 @@ const StoryForm: React.FC<StoryFormProps> = ({
             value={storyParams.characters}
             onChange={handleInputChange}
           />
+        </div>
+        
+        <div className="bg-gray-50 p-4 rounded-md border border-gray-100">
+          <div className="flex items-center justify-between mb-2">
+            <Label className="text-sm font-semibold flex items-center gap-1">
+              <User className="h-4 w-4" />
+              Famous Characters
+            </Label>
+          </div>
+          <p className="text-gray-500 text-xs mb-3">Add a famous character to your story</p>
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            {famousCharacters.map((character) => (
+              <Button
+                key={character.name}
+                variant="outline"
+                size="sm"
+                className="justify-start text-xs h-auto py-1 px-2"
+                onClick={() => handleAddFamousCharacter(character.name)}
+                title={character.description}
+              >
+                <PlusCircle className="h-3 w-3 mr-1" />
+                {character.name}
+              </Button>
+            ))}
+          </div>
         </div>
         
         <div>
