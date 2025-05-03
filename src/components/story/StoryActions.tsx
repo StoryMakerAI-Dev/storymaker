@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Wand2, Dice5, Share2, Mail, Save } from 'lucide-react';
+import { Wand2, Dice5, Share2, Mail, Save, Globe } from 'lucide-react';
 import { StoryParams } from '@/types/story';
 import {
   DropdownMenu,
@@ -33,6 +33,53 @@ const StoryActions: React.FC<StoryActionsProps> = ({
 }) => {
   const { toast } = useToast();
   const { isSignedIn } = useAuth();
+  const [isPublishing, setIsPublishing] = useState(false);
+  
+  const publishStoryToPublic = async () => {
+    if (!storyTitle || !storyContent) {
+      toast({
+        title: "Cannot publish",
+        description: "You need to generate a story first",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (!isSignedIn) {
+      toast({
+        title: "Login required",
+        description: "Please login to publish stories",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      setIsPublishing(true);
+      
+      // In a real implementation, this would save to a database
+      // For now we'll simulate the API call with a timeout
+      setTimeout(() => {
+        setIsPublishing(false);
+        toast({
+          title: "Story published!",
+          description: "Your story is now available in the community stories section",
+        });
+        
+        // Redirect to share stories page
+        window.location.href = '/share-stories';
+      }, 1500);
+      
+    } catch (error) {
+      console.error("Error publishing story:", error);
+      setIsPublishing(false);
+      toast({
+        title: "Publishing failed",
+        description: "There was an error publishing your story",
+        variant: "destructive",
+      });
+    }
+  };
   
   const handleShare = (platform: string) => {
     const shareText = storyTitle 
@@ -146,7 +193,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         {isGenerating ? "Creating Your Story..." : "Generate Story"}
       </Button>
       
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-4 gap-2">
         <Button 
           variant="secondary"
           onClick={onRandomize}
@@ -165,6 +212,16 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         >
           <Save className="mr-2 h-4 w-4" />
           Save
+        </Button>
+        
+        <Button
+          variant="outline"
+          onClick={publishStoryToPublic}
+          disabled={!isShareable || !isSignedIn || isPublishing}
+          className="flex items-center justify-center"
+        >
+          <Globe className="mr-2 h-4 w-4" />
+          {isPublishing ? "Publishing..." : "Publish"}
         </Button>
         
         <DropdownMenu>

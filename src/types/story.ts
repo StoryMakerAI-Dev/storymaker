@@ -33,6 +33,16 @@ export type SavedStory = {
   params: StoryParams;
 };
 
+export type SharedStory = SavedStory & {
+  author: string;
+  authorId: string;
+  isPublic: boolean;
+  likes: number;
+  comments: number;
+  shares: number;
+  tags?: string[];
+};
+
 export type User = {
   email: string;
   username: string;
