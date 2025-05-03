@@ -27,6 +27,10 @@ const StoryForm: React.FC<StoryFormProps> = ({
     handleInputChange(event);
   };
 
+  const handleWordCountChange = (value: number) => {
+    handleSelectChange('wordCount', value.toString());
+  };
+
   return (
     <>
       <StoryBasicFields
@@ -35,8 +39,10 @@ const StoryForm: React.FC<StoryFormProps> = ({
         setting={storyParams.setting}
         theme={storyParams.theme}
         additionalDetails={storyParams.additionalDetails}
+        wordCount={storyParams.wordCount}
         onInputChange={handleInputChange}
         onSelectChange={handleSelectChange}
+        onWordCountChange={handleWordCountChange}
       />
       
       <div className="space-y-4 mt-6">

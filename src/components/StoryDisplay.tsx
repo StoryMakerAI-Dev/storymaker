@@ -1,9 +1,10 @@
 
 import React, { useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Book, Download, Sparkles, X, PencilLine } from 'lucide-react';
+import { Book, Download, Sparkles, X, PencilLine, FileText } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import { Switch } from "@/components/ui/switch";
+import { countWords } from '@/utils/storyUtils';
 
 interface StoryDisplayProps {
   title: string;
@@ -52,6 +53,7 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, onEdit }) =
   };
 
   const paragraphs = content.split('\n\n');
+  const wordCount = countWords(content);
 
   const toggleBookMode = () => {
     setBookMode(!bookMode);
@@ -94,6 +96,10 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, onEdit }) =
               <div className="text-center mt-12 mb-4">
                 <Sparkles className="inline-block h-6 w-6 text-storyforge-yellow animate-pulse-slow" />
               </div>
+              
+              <div className="text-center text-sm text-gray-500 mt-8">
+                {wordCount} words
+              </div>
             </div>
           </div>
         </div>
@@ -105,9 +111,14 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, onEdit }) =
     <div className="w-full max-w-3xl mx-auto animate-fade-in">
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="bg-gradient-to-r from-storyforge-blue to-storyforge-purple p-6 text-white">
-          <div className="flex items-center gap-2 mb-2">
-            <Book className="h-5 w-5" />
-            <h3 className="text-sm font-medium uppercase tracking-wider opacity-90">Your Unique Story</h3>
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-2 mb-2">
+              <Book className="h-5 w-5" />
+              <h3 className="text-sm font-medium uppercase tracking-wider opacity-90">Your Unique Story</h3>
+            </div>
+            <div className="text-sm font-medium bg-white/20 rounded-full px-3 py-1">
+              {wordCount} words
+            </div>
           </div>
           <h2 className="text-3xl font-display font-bold">{title}</h2>
         </div>

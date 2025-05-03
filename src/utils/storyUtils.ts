@@ -59,6 +59,86 @@ export const validateInputs = (params: StoryParams): boolean => {
   return true;
 };
 
+// Helper function to count words in a text
+export const countWords = (text: string): number => {
+  return text.split(/\s+/).filter(Boolean).length;
+};
+
+// Helper function to adjust text to approximately match target word count
+export const adjustTextToWordCount = (text: string, targetWordCount: number): string => {
+  const currentWordCount = countWords(text);
+  
+  // If word count is close enough (within 10% of target), return as is
+  if (Math.abs(currentWordCount - targetWordCount) / targetWordCount < 0.1) {
+    return text;
+  }
+  
+  // Split text into paragraphs
+  const paragraphs = text.split("\n\n");
+  
+  if (currentWordCount < targetWordCount) {
+    // Need to add more content
+    const avgWordsPerParagraph = currentWordCount / paragraphs.length;
+    const additionalParagraphsNeeded = Math.ceil((targetWordCount - currentWordCount) / avgWordsPerParagraph);
+    
+    // Generate additional paragraphs
+    for (let i = 0; i < additionalParagraphsNeeded; i++) {
+      const randomParagraphIndex = Math.floor(Math.random() * paragraphs.length);
+      const existingParagraph = paragraphs[randomParagraphIndex];
+      
+      // Create a similar paragraph with different wording
+      const newParagraph = expandParagraph(existingParagraph);
+      
+      // Insert new paragraph after the randomly selected paragraph
+      paragraphs.splice(randomParagraphIndex + 1, 0, newParagraph);
+    }
+  } else {
+    // Need to reduce content
+    while (countWords(paragraphs.join("\n\n")) > targetWordCount && paragraphs.length > 2) {
+      // Remove a random paragraph (except first and last)
+      const indexToRemove = Math.floor(Math.random() * (paragraphs.length - 2)) + 1;
+      paragraphs.splice(indexToRemove, 1);
+    }
+    
+    // If still too long, trim individual paragraphs
+    if (countWords(paragraphs.join("\n\n")) > targetWordCount) {
+      for (let i = paragraphs.length - 2; i >= 1 && countWords(paragraphs.join("\n\n")) > targetWordCount; i--) {
+        const sentences = paragraphs[i].split('. ');
+        if (sentences.length > 1) {
+          sentences.pop();
+          paragraphs[i] = sentences.join('. ') + '.';
+        }
+      }
+    }
+  }
+  
+  return paragraphs.join("\n\n");
+};
+
+// Helper function to expand a paragraph with similar content
+const expandParagraph = (paragraph: string): string => {
+  const sentences = paragraph.split('. ');
+  const lastSentence = sentences[sentences.length - 1];
+  
+  // Create variations on the last sentence
+  const variations = [
+    `As this unfolded, everyone could sense the significance of the moment.`,
+    `This event would change everything in ways no one could have predicted.`,
+    `The air seemed to shimmer with anticipation as events continued to unfold.`,
+    `This revelation cast everything in a new light, changing perspectives instantly.`,
+    `What happened next would be remembered for generations to come.`,
+    `The weight of this realization settled upon everyone present.`,
+    `Little did they know how this moment would echo through time.`,
+    `It was as if time itself paused to acknowledge the importance of this development.`,
+    `This unexpected turn of events opened up new possibilities and paths forward.`,
+    `Everything seemed to shift, like puzzle pieces finally falling into place.`
+  ];
+  
+  const randomVariation = variations[Math.floor(Math.random() * variations.length)];
+  
+  return `${paragraph}. ${randomVariation}`;
+};
+
 export const generateMockTitle = (params: StoryParams): string => {
   const mainCharacter = params.characters.split(' and ')[0] || params.characters.split(',')[0] || "Hero";
   const cleanedMainCharacter = mainCharacter.trim().replace(/^a |^an |^the /i, '');
@@ -201,7 +281,12 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
   const story = storyIntros[ageGroup] + "\n\n" + additionalParagraphs[ageGroup];
   
   // Apply grammar check
-  const correctedStory = performGrammarCheck(story);
+  let correctedStory = performGrammarCheck(story);
+  
+  // Adjust word count if specified
+  if (params.wordCount && params.wordCount > 0) {
+    correctedStory = adjustTextToWordCount(correctedStory, params.wordCount);
+  }
   
   return { title, story: correctedStory };
 };

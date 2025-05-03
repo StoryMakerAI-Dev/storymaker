@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 
 interface StoryBasicFieldsProps {
   ageGroup: string;
@@ -11,8 +12,10 @@ interface StoryBasicFieldsProps {
   setting: string;
   theme: string;
   additionalDetails: string;
+  wordCount?: number;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   onSelectChange: (name: string, value: string) => void;
+  onWordCountChange: (value: number) => void;
 }
 
 const StoryBasicFields: React.FC<StoryBasicFieldsProps> = ({
@@ -21,8 +24,10 @@ const StoryBasicFields: React.FC<StoryBasicFieldsProps> = ({
   setting,
   theme,
   additionalDetails,
+  wordCount = 0,
   onInputChange,
-  onSelectChange
+  onSelectChange,
+  onWordCountChange
 }) => {
   return (
     <>
@@ -97,6 +102,35 @@ const StoryBasicFields: React.FC<StoryBasicFieldsProps> = ({
           onChange={onInputChange}
           rows={3}
         />
+      </div>
+      
+      <div className="mt-4">
+        <div className="flex items-center justify-between mb-2">
+          <Label htmlFor="wordCount" className="flex items-center gap-2">
+            Specify Word Count
+            <Switch 
+              id="enableWordCount" 
+              checked={wordCount > 0}
+              onCheckedChange={(checked) => onWordCountChange(checked ? 500 : 0)}
+            />
+          </Label>
+          {wordCount > 0 && (
+            <span className="text-sm text-gray-500">{wordCount} words</span>
+          )}
+        </div>
+        
+        {wordCount > 0 && (
+          <Input
+            id="wordCount"
+            name="wordCount"
+            type="number"
+            min={100}
+            max={2000}
+            value={wordCount}
+            onChange={(e) => onWordCountChange(Number(e.target.value))}
+            className="w-full"
+          />
+        )}
       </div>
     </>
   );

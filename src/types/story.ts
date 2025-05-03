@@ -9,6 +9,7 @@ export type StoryParams = {
   theme: string;
   additionalDetails: string;
   famousCharacter?: string;
+  wordCount?: number;
 };
 
 export const initialStoryParams: StoryParams = {
@@ -21,6 +22,7 @@ export const initialStoryParams: StoryParams = {
   theme: '',
   additionalDetails: '',
   famousCharacter: '',
+  wordCount: 0,
 };
 
 export type SavedStory = {
