@@ -278,8 +278,8 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         </DropdownMenu>
       </div>
 
-      {/* Mobile optimization */}
-      <style jsx>{`
+      {/* Mobile optimization - Fixed the style tag by removing the jsx attribute */}
+      <style>{`
         @media (max-width: 640px) {
           .dropdown-button {
             min-width: 100%;
