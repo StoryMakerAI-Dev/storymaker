@@ -183,24 +183,27 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   const isShareable = storyTitle !== "" && storyContent !== "";
 
   return (
-    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="mt-6 space-y-4">
+      {/* Main action button - Generate Story */}
       <Button 
-        className="bg-gradient-to-r from-storyforge-blue to-storyforge-purple hover:opacity-90 transition-opacity"
+        className="w-full md:w-auto bg-gradient-to-r from-storyforge-blue to-storyforge-purple hover:opacity-90 transition-opacity text-white font-medium shadow-lg hover:shadow-xl"
         onClick={onGenerate}
         disabled={isGenerating}
+        size="lg"
       >
-        <Wand2 className="mr-2 h-4 w-4" />
+        <Wand2 className="mr-2 h-5 w-5" />
         {isGenerating ? "Creating Your Story..." : "Generate Story"}
       </Button>
       
-      <div className="grid grid-cols-4 gap-2">
+      {/* Secondary action buttons */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Button 
           variant="secondary"
           onClick={onRandomize}
           disabled={isGenerating}
-          className="flex items-center justify-center"
+          className="bg-white border border-gray-200 hover:bg-gray-50 text-gray-800 shadow-sm"
         >
-          <Dice5 className="mr-2 h-4 w-4" />
+          <Dice5 className="mr-2 h-4 w-4 text-storyforge-purple" />
           Random
         </Button>
         
@@ -208,7 +211,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
           variant="outline"
           onClick={handleSaveStory}
           disabled={!isShareable || !isSignedIn}
-          className="flex items-center justify-center"
+          className="bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 shadow-sm"
         >
           <Save className="mr-2 h-4 w-4" />
           Save
@@ -218,7 +221,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
           variant="outline"
           onClick={publishStoryToPublic}
           disabled={!isShareable || !isSignedIn || isPublishing}
-          className="flex items-center justify-center"
+          className="bg-white hover:bg-green-50 text-green-600 border border-green-200 shadow-sm"
         >
           <Globe className="mr-2 h-4 w-4" />
           {isPublishing ? "Publishing..." : "Publish"}
@@ -228,32 +231,44 @@ const StoryActions: React.FC<StoryActionsProps> = ({
           <DropdownMenuTrigger asChild>
             <Button 
               variant="outline" 
-              className="flex items-center justify-center"
+              className="bg-white hover:bg-purple-50 text-purple-600 border border-purple-200 shadow-sm"
               disabled={!isShareable}
             >
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => handleShare('twitter')}>
-              <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <DropdownMenuContent align="end" className="w-48 p-2 rounded-lg border border-gray-100 shadow-lg">
+            <DropdownMenuItem 
+              onClick={() => handleShare('twitter')}
+              className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2 text-[#1DA1F2]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z" />
               </svg>
               Twitter
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleShare('facebook')}>
-              <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <DropdownMenuItem 
+              onClick={() => handleShare('facebook')}
+              className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2 text-[#1877F2]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
               </svg>
               Facebook
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleShare('email')}>
-              <Mail className="w-4 h-4 mr-2" />
+            <DropdownMenuItem 
+              onClick={() => handleShare('email')}
+              className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
+            >
+              <Mail className="w-4 h-4 mr-2 text-gray-600" />
               Email
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleShare('copy')}>
-              <svg className="w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <DropdownMenuItem 
+              onClick={() => handleShare('copy')}
+              className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
+            >
+              <svg className="w-4 h-4 mr-2 text-gray-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
@@ -262,6 +277,15 @@ const StoryActions: React.FC<StoryActionsProps> = ({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* Mobile optimization */}
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .dropdown-button {
+            min-width: 100%;
+          }
+        }
+      `}</style>
     </div>
   );
 };
