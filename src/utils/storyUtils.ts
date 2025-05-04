@@ -278,7 +278,7 @@ Outside, the storm intensified as if mirroring the tempest of moral ambiguity th
   };
   
   const ageGroup = params.ageGroup as keyof typeof storyIntros;
-  const story = storyIntros[ageGroup] + "\n\n" + additionalParagraphs[ageGroup];
+  let story = storyIntros[ageGroup] + "\n\n" + additionalParagraphs[ageGroup];
   
   // Apply grammar check
   let correctedStory = performGrammarCheck(story);

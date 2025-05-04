@@ -3,13 +3,16 @@ import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { Music, Image, Mic, BookText, Share2, Heart, MessageSquare, Loader2 } from 'lucide-react';
+import { Music, Image, Mic, BookText, Share2, Heart, MessageSquare, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from '@clerk/clerk-react';
 import { SharedStory } from '@/types/story';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 
 // Sample data - in a real app this would come from an API or database
 const exampleSharedStories: SharedStory[] = [
@@ -78,12 +81,29 @@ const exampleSharedStories: SharedStory[] = [
   }
 ];
 
+// Sample comments data structure
+interface StoryComment {
+  id: string;
+  storyId: string;
+  author: string;
+  authorId: string;
+  content: string;
+  createdAt: string;
+}
+
 const ShareStories = () => {
   const { toast } = useToast();
   const { isSignedIn, userId } = useAuth();
   const [stories, setStories] = useState<SharedStory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("latest");
+  const [newStoryTitle, setNewStoryTitle] = useState("");
+  const [newStoryContent, setNewStoryContent] = useState("");
+  const [comments, setComments] = useState<StoryComment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [selectedStoryId, setSelectedStoryId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isCommenting, setIsCommenting] = useState(false);
 
   useEffect(() => {
     // Simulate fetching stories from an API
@@ -93,6 +113,26 @@ const ShareStories = () => {
         // In a real app, this would be an API call
         setTimeout(() => {
           setStories(exampleSharedStories);
+          // Generate some sample comments
+          const sampleComments: StoryComment[] = [
+            {
+              id: "comment-1",
+              storyId: "story-1",
+              author: "Taylor Smith",
+              authorId: "user-4",
+              content: "This was such a magical story! I loved the descriptions of the fairy world.",
+              createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+            },
+            {
+              id: "comment-2",
+              storyId: "story-2",
+              author: "Jamie Parker",
+              authorId: "user-5",
+              content: "The cyberpunk setting is so vividly described. I could practically see the neon lights!",
+              createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+            }
+          ];
+          setComments(sampleComments);
           setIsLoading(false);
         }, 1000);
       } catch (error) {
@@ -125,8 +165,11 @@ const ShareStories = () => {
         switch (action) {
           case 'Like':
             return { ...story, likes: story.likes + 1 };
+          case 'Dislike':
+            return { ...story, likes: Math.max(0, story.likes - 1) };
           case 'Comment':
-            // In a real app, this would open a comment form
+            setSelectedStoryId(storyId);
+            setIsCommenting(true);
             return story;
           case 'Share':
             return { ...story, shares: story.shares + 1 };
@@ -139,12 +182,15 @@ const ShareStories = () => {
 
     setStories(updatedStories);
 
-    toast({
-      title: `Story ${action}d!`,
-      description: action === 'Like' ? "You liked this story" : 
-                  action === 'Share' ? "Story link copied to clipboard" : 
-                  "Comment feature coming soon",
-    });
+    if (action !== 'Comment') {
+      toast({
+        title: `Story ${action}d!`,
+        description: action === 'Like' ? "You liked this story" : 
+                    action === 'Dislike' ? "You disliked this story" :
+                    action === 'Share' ? "Story link copied to clipboard" : 
+                    "Comment feature coming soon",
+      });
+    }
 
     if (action === 'Share') {
       const story = stories.find(s => s.id === storyId);
@@ -186,6 +232,113 @@ const ShareStories = () => {
     }).format(date);
   };
 
+  const handlePostStory = () => {
+    if (!isSignedIn) {
+      toast({
+        title: "Login required",
+        description: "Please login to post stories",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newStoryTitle.trim() || !newStoryContent.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please provide both a title and content for your story",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create a new story object
+    const newStory: SharedStory = {
+      id: `story-${stories.length + 1}`,
+      title: newStoryTitle,
+      content: newStoryContent,
+      createdAt: new Date().toISOString(),
+      author: "You", // In a real app, this would be the user's name
+      authorId: userId || "unknown",
+      isPublic: true,
+      likes: 0,
+      comments: 0,
+      shares: 0,
+      params: {
+        ageGroup: "Adults",
+        genre: "Fantasy",
+        characters: "",
+        pronouns: "",
+        setting: "",
+        theme: "",
+        additionalDetails: "",
+      }
+    };
+
+    // Add the new story to the list
+    setStories([newStory, ...stories]);
+
+    // Reset the form
+    setNewStoryTitle("");
+    setNewStoryContent("");
+    setIsDialogOpen(false);
+
+    toast({
+      title: "Story posted!",
+      description: "Your story has been published successfully",
+    });
+  };
+
+  const handlePostComment = () => {
+    if (!isSignedIn) {
+      toast({
+        title: "Login required",
+        description: "Please login to comment",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!newComment.trim() || !selectedStoryId) {
+      toast({
+        title: "Missing information",
+        description: "Please enter a comment",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Create a new comment
+    const comment: StoryComment = {
+      id: `comment-${comments.length + 1}`,
+      storyId: selectedStoryId,
+      author: "You", // In a real app, this would be the user's name
+      authorId: userId || "unknown",
+      content: newComment,
+      createdAt: new Date().toISOString()
+    };
+
+    // Add the comment to the list
+    setComments([...comments, comment]);
+
+    // Update the comment count for the story
+    const updatedStories = stories.map(story => {
+      if (story.id === selectedStoryId) {
+        return { ...story, comments: story.comments + 1 };
+      }
+      return story;
+    });
+    setStories(updatedStories);
+
+    // Reset the comment form
+    setNewComment("");
+    setIsCommenting(false);
+
+    toast({
+      title: "Comment posted!",
+      description: "Your comment has been added successfully",
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-storyforge-background to-white">
       <Header />
@@ -199,22 +352,58 @@ const ShareStories = () => {
             Explore stories shared by our community, or publish your own creations for others to enjoy!
           </p>
           <div className="flex justify-center gap-4">
-            <Button 
-              variant="default"
-              onClick={() => {
-                if (!isSignedIn) {
-                  toast({
-                    title: "Login required",
-                    description: "Please login to publish stories",
-                    variant: "destructive",
-                  });
-                  return;
-                }
-                window.location.href = '/';
-              }}
-            >
-              Create & Publish Your Story
-            </Button>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="default"
+                  onClick={() => {
+                    if (!isSignedIn) {
+                      toast({
+                        title: "Login required",
+                        description: "Please login to publish stories",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    setIsDialogOpen(true);
+                  }}
+                >
+                  Create & Publish Your Story
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Publish a Story</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="title">Story Title</Label>
+                    <Input 
+                      id="title" 
+                      value={newStoryTitle}
+                      onChange={(e) => setNewStoryTitle(e.target.value)}
+                      placeholder="Enter a catchy title for your story" 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="content">Story Content</Label>
+                    <Textarea 
+                      id="content" 
+                      value={newStoryContent}
+                      onChange={(e) => setNewStoryContent(e.target.value)}
+                      placeholder="Write your story here..." 
+                      rows={10}
+                      className="resize-none" 
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handlePostStory}>Publish Story</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+            
             <Button 
               variant="outline"
               onClick={() => {
@@ -413,7 +602,21 @@ const ShareStories = () => {
                                       size="sm" 
                                       onClick={() => handleStoryAction("Like", story.id)}
                                     >
-                                      <Heart className="h-4 w-4" />
+                                      <ThumbsUp className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm" 
+                                      onClick={() => handleStoryAction("Dislike", story.id)}
+                                    >
+                                      <ThumbsDown className="h-4 w-4" />
+                                    </Button>
+                                    <Button 
+                                      variant="ghost" 
+                                      size="sm"
+                                      onClick={() => handleStoryAction("Comment", story.id)}
+                                    >
+                                      <MessageSquare className="h-4 w-4" />
                                     </Button>
                                     <Button 
                                       variant="ghost" 
@@ -462,10 +665,13 @@ const ShareStories = () => {
                           <Heart className="h-4 w-4" />
                           <span>{story.likes}</span>
                         </button>
-                        <span className="flex items-center gap-1">
+                        <button
+                          className="flex items-center gap-1 hover:text-storyforge-blue transition-colors"
+                          onClick={() => handleStoryAction("Comment", story.id)}
+                        >
                           <MessageSquare className="h-4 w-4" />
                           <span>{story.comments}</span>
-                        </span>
+                        </button>
                       </div>
                       <Button 
                         size="sm" 
@@ -484,8 +690,42 @@ const ShareStories = () => {
         </section>
       </main>
       
+      {/* Comment Dialog */}
+      <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add a Comment</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Textarea 
+              placeholder="Write your comment here..." 
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              className="resize-none" 
+              rows={4}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCommenting(false)}>Cancel</Button>
+            <Button onClick={handlePostComment}>Post Comment</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Footer />
     </div>
+  );
+};
+
+// Missing Label component
+const Label = ({ htmlFor, className, children }: { htmlFor?: string; className?: string; children: React.ReactNode }) => {
+  return (
+    <label
+      htmlFor={htmlFor}
+      className={`block text-sm font-medium text-gray-700 mb-1 ${className || ''}`}
+    >
+      {children}
+    </label>
   );
 };
 
