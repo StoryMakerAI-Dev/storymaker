@@ -34,71 +34,58 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   const [isPublishing, setIsPublishing] = useState(false);
   
   const publishStoryToPublic = async () => {
-    if (!storyTitle || !storyContent) {
-      toast({
-        title: "Cannot publish",
-        description: "You need to generate a story first",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    if (!isSignedIn) {
-      toast({
-        title: "Login required",
-        description: "Please login to publish stories",
-        variant: "destructive",
-      });
-      return;
+    if (!storyTitle || !storyContent || !isSignedIn) {
+      return; // Basic validation is now handled in the PublishButton component
     }
     
     try {
       setIsPublishing(true);
       
       // In a real implementation, this would save to a database
-      // For now we'll simulate the API call with a timeout
-      setTimeout(() => {
-        setIsPublishing(false);
-        toast({
-          title: "Story published!",
-          description: "Your story is now available in the community stories section",
-        });
-        
-        // Redirect to share stories page
-        window.location.href = '/share-stories';
-      }, 1500);
+      // Simulating API call with a timeout for now
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Store the published story in localStorage for demo purposes
+      const publishedStories = JSON.parse(localStorage.getItem('publishedStories') || '[]');
+      const newStory = {
+        id: uuidv4(),
+        title: storyTitle,
+        content: storyContent,
+        author: 'Current User',
+        publishedAt: new Date().toISOString(),
+        likes: 0,
+        comments: []
+      };
+      
+      publishedStories.push(newStory);
+      localStorage.setItem('publishedStories', JSON.stringify(publishedStories));
+      
+      toast({
+        title: "Story published!",
+        description: "Your story is now available in the community stories section",
+      });
+      
+      // Redirect to share stories page
+      window.location.href = '/share-stories';
       
     } catch (error) {
       console.error("Error publishing story:", error);
-      setIsPublishing(false);
       toast({
         title: "Publishing failed",
         description: "There was an error publishing your story",
         variant: "destructive",
       });
+    } finally {
+      setIsPublishing(false);
     }
   };
 
   const handleSaveStory = async () => {
-    if (!storyTitle || !storyContent) {
-      toast({
-        title: "Cannot save",
-        description: "You need to generate a story first",
-        variant: "destructive",
-      });
-      return;
+    if (!storyTitle || !storyContent || !isSignedIn) {
+      return; // Basic validation is now handled in the SaveButton component
     }
     
     try {
-      if (!isSignedIn) {
-        toast({
-          title: "Login required",
-          description: "Please login to save stories",
-          variant: "destructive",
-        });
-        return;
-      }
-      
       const savedStory = {
         id: uuidv4(),
         title: storyTitle,
