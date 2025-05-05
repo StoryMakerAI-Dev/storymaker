@@ -32,3 +32,26 @@ export const validateInputs = (params: StoryParams): boolean => {
   
   return true;
 };
+
+// Add a utility function to validate published stories
+export const validatePublishedStory = (title: string, content: string): boolean => {
+  if (!title || !title.trim()) {
+    toast({
+      title: "Cannot publish",
+      description: "Your story needs a title",
+      variant: "destructive",
+    });
+    return false;
+  }
+  
+  if (!content || !content.trim() || content.length < 100) {
+    toast({
+      title: "Cannot publish",
+      description: "Your story content is too short to publish",
+      variant: "destructive",
+    });
+    return false;
+  }
+  
+  return true;
+};

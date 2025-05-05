@@ -4,6 +4,7 @@ import { StoryParams } from '@/types/story';
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '@clerk/clerk-react';
+import { useNavigate } from 'react-router-dom';
 import { saveStory } from '@/utils/clerkAuthUtils';
 
 import GenerateButton from './buttons/GenerateButton';
@@ -32,6 +33,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   const { toast } = useToast();
   const { isSignedIn } = useAuth();
   const [isPublishing, setIsPublishing] = useState(false);
+  const navigate = useNavigate();
   
   const publishStoryToPublic = async () => {
     if (!storyTitle || !storyContent || !isSignedIn) {
@@ -47,6 +49,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
       
       // Store the published story in localStorage for demo purposes
       const publishedStories = JSON.parse(localStorage.getItem('publishedStories') || '[]');
+      
       const newStory = {
         id: uuidv4(),
         title: storyTitle,
@@ -54,7 +57,17 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         author: 'Current User',
         publishedAt: new Date().toISOString(),
         likes: 0,
-        comments: []
+        comments: 0,
+        shares: 0,
+        params: storyParams || {
+          ageGroup: 'children',
+          genre: 'fantasy',
+          characters: '',
+          pronouns: 'she/her',
+          setting: '',
+          theme: '',
+          additionalDetails: '',
+        }
       };
       
       publishedStories.push(newStory);
@@ -65,8 +78,8 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         description: "Your story is now available in the community stories section",
       });
       
-      // Redirect to share stories page
-      window.location.href = '/share-stories';
+      // Use react-router-dom's navigate function instead of window.location
+      navigate('/share-stories');
       
     } catch (error) {
       console.error("Error publishing story:", error);

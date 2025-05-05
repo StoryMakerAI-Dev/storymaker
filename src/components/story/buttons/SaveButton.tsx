@@ -31,6 +31,10 @@ const SaveButton: React.FC<SaveButtonProps> = ({ isShareable, isSignedIn, onSave
     }
 
     onSave();
+    toast({
+      title: "Saving story...",
+      description: "Your story is being saved",
+    });
   };
 
   return (
