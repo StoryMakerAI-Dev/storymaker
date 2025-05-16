@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 
 interface ShareDropdownProps {
   isShareable: boolean;
@@ -21,9 +21,16 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
   storyTitle,
   storyContent
 }) => {
-  const { toast } = useToast();
-
   const handleShare = (platform: string) => {
+    if (!isShareable) {
+      toast({
+        title: "Cannot share",
+        description: "You need to generate a story first",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const shareText = storyTitle 
       ? `Check out my story: "${storyTitle}"`
       : "Check out my AI-generated story!";

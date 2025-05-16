@@ -1,11 +1,12 @@
 
 import React, { useState } from 'react';
 import { StoryParams } from '@/types/story';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "@/components/ui/use-toast";
 import { v4 as uuidv4 } from 'uuid';
 import { useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { saveStory } from '@/utils/clerkAuthUtils';
+import { validatePublishedStory } from '@/utils/story/validationUtils';
 
 import GenerateButton from './buttons/GenerateButton';
 import RandomizeButton from './buttons/RandomizeButton';
@@ -30,14 +31,23 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   storyContent = "",
   storyParams
 }) => {
-  const { toast } = useToast();
   const { isSignedIn } = useAuth();
   const [isPublishing, setIsPublishing] = useState(false);
   const navigate = useNavigate();
   
   const publishStoryToPublic = async () => {
-    if (!storyTitle || !storyContent || !isSignedIn) {
-      return; // Basic validation is now handled in the PublishButton component
+    // Basic validation is now handled in the PublishButton component
+    if (!validatePublishedStory(storyTitle, storyContent)) {
+      return;
+    }
+    
+    if (!isSignedIn) {
+      toast({
+        title: "Login required",
+        description: "Please login to publish stories",
+        variant: "destructive",
+      });
+      return;
     }
     
     try {
@@ -78,7 +88,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
         description: "Your story is now available in the community stories section",
       });
       
-      // Use react-router-dom's navigate function instead of window.location
+      // Use react-router-dom's navigate function to redirect
       navigate('/share-stories');
       
     } catch (error) {
