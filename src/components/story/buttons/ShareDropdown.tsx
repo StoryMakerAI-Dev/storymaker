@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 interface ShareDropdownProps {
   isShareable: boolean;
@@ -82,7 +82,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
           Share
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48 p-2 rounded-lg border border-gray-100 shadow-lg">
+      <DropdownMenuContent align="end" className="w-48 p-2 rounded-lg border border-gray-100 shadow-lg bg-white z-50">
         <DropdownMenuItem 
           onClick={() => handleShare('twitter')}
           className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"

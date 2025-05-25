@@ -2,8 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Globe } from 'lucide-react';
-import { toast } from "@/components/ui/use-toast";
-import { validatePublishedStory } from '@/utils/story/validationUtils';
+import { toast } from "@/hooks/use-toast";
 
 interface PublishButtonProps {
   isShareable: boolean;

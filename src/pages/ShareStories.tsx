@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Loader2 } from 'lucide-react';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@clerk/clerk-react';
 import { SharedStory } from '@/types/story';
@@ -111,9 +112,13 @@ const ShareStories = () => {
     const fetchStories = async () => {
       setIsLoading(true);
       try {
+        // Load published stories from localStorage and merge with examples
+        const publishedStories = JSON.parse(localStorage.getItem('publishedStories') || '[]');
+        const allStories = [...publishedStories, ...exampleSharedStories];
+        
         // In a real app, this would be an API call
         setTimeout(() => {
-          setStories(exampleSharedStories);
+          setStories(allStories);
           // Generate some sample comments
           const sampleComments: StoryComment[] = [
             {
@@ -207,32 +212,6 @@ const ShareStories = () => {
     // In a real app, this would fetch different stories based on the filter
   };
 
-  const handleExternalLink = (service: string) => {
-    switch(service) {
-      case 'TextMakerAI':
-        window.open("https://preview--textmaker.lovable.app/", "_blank");
-        break;
-      case 'PictureMakerAI':
-        window.open("https://picturemaker.storyforge.ai", "_blank");
-        break;
-      default:
-        toast({
-          title: "Coming Soon",
-          description: "This feature is currently in development.",
-          variant: "default"
-        });
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    }).format(date);
-  };
-
   const handlePostStory = () => {
     if (!isSignedIn) {
       toast({
@@ -254,7 +233,7 @@ const ShareStories = () => {
 
     // Create a new story object
     const newStory: SharedStory = {
-      id: `story-${stories.length + 1}`,
+      id: `story-${Date.now()}`,
       title: newStoryTitle,
       content: newStoryContent,
       createdAt: new Date().toISOString(),
@@ -310,7 +289,7 @@ const ShareStories = () => {
 
     // Create a new comment
     const comment: StoryComment = {
-      id: `comment-${comments.length + 1}`,
+      id: `comment-${Date.now()}`,
       storyId: selectedStoryId,
       author: "You", // In a real app, this would be the user's name
       authorId: userId || "unknown",
@@ -423,18 +402,6 @@ const ShareStories = () => {
 
       <Footer />
     </div>
-  );
-};
-
-// Missing Label component
-const Label = ({ htmlFor, className, children }: { htmlFor?: string; className?: string; children: React.ReactNode }) => {
-  return (
-    <label
-      htmlFor={htmlFor}
-      className={`block text-sm font-medium text-gray-700 mb-1 ${className || ''}`}
-    >
-      {children}
-    </label>
   );
 };
 

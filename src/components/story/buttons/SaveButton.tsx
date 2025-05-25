@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Save } from 'lucide-react';
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 interface SaveButtonProps {
   isShareable: boolean;
@@ -31,10 +31,6 @@ const SaveButton: React.FC<SaveButtonProps> = ({ isShareable, isSignedIn, onSave
     }
 
     onSave();
-    toast({
-      title: "Saving story...",
-      description: "Your story is being saved",
-    });
   };
 
   return (
