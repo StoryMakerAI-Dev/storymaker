@@ -1,18 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Music, Image, Mic, BookText, Share2, Heart, MessageSquare, Loader2, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from 'lucide-react';
+import { toast } from "@/components/ui/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useAuth } from '@clerk/clerk-react';
 import { SharedStory } from '@/types/story';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
+
+// Import refactored components
+import CommunityStoriesHeader from '@/components/share/CommunityStoriesHeader';
+import StoryFilters from '@/components/share/StoryFilters';
+import StoryTable from '@/components/share/StoryTable';
+import StoryCard from '@/components/share/StoryCard';
+import PublishStoryDialog from '@/components/share/PublishStoryDialog';
+import CommentDialog from '@/components/share/CommentDialog';
+import EnhanceStoriesSection from '@/components/share/EnhanceStoriesSection';
 
 // Sample data - in a real app this would come from an API or database
 const exampleSharedStories: SharedStory[] = [
@@ -92,7 +94,6 @@ interface StoryComment {
 }
 
 const ShareStories = () => {
-  const { toast } = useToast();
   const { isSignedIn, userId } = useAuth();
   const [stories, setStories] = useState<SharedStory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -147,7 +148,7 @@ const ShareStories = () => {
     };
 
     fetchStories();
-  }, [toast]);
+  }, []);
 
   const handleStoryAction = (action: string, storyId: string) => {
     if (!isSignedIn) {
@@ -344,77 +345,10 @@ const ShareStories = () => {
       <Header />
       
       <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
-        <section className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 gradient-text">
-            Community Stories
-          </h1>
-          <p className="text-xl text-gray-600 mb-6 max-w-2xl mx-auto">
-            Explore stories shared by our community, or publish your own creations for others to enjoy!
-          </p>
-          <div className="flex justify-center gap-4">
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="default"
-                  onClick={() => {
-                    if (!isSignedIn) {
-                      toast({
-                        title: "Login required",
-                        description: "Please login to publish stories",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    setIsDialogOpen(true);
-                  }}
-                >
-                  Create & Publish Your Story
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle>Publish a Story</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div>
-                    <Label htmlFor="title">Story Title</Label>
-                    <Input 
-                      id="title" 
-                      value={newStoryTitle}
-                      onChange={(e) => setNewStoryTitle(e.target.value)}
-                      placeholder="Enter a catchy title for your story" 
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="content">Story Content</Label>
-                    <Textarea 
-                      id="content" 
-                      value={newStoryContent}
-                      onChange={(e) => setNewStoryContent(e.target.value)}
-                      placeholder="Write your story here..." 
-                      rows={10}
-                      className="resize-none" 
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                  <Button onClick={handlePostStory}>Publish Story</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            
-            <Button 
-              variant="outline"
-              onClick={() => {
-                const storiesSection = document.getElementById('community-stories');
-                storiesSection?.scrollIntoView({ behavior: 'smooth' });
-              }}
-            >
-              Browse Community Stories
-            </Button>
-          </div>
-        </section>
+        <CommunityStoriesHeader 
+          isSignedIn={isSignedIn}
+          onCreateStory={() => setIsDialogOpen(true)}
+        />
         
         <section className="mb-12">
           <Tabs defaultValue="create">
@@ -424,120 +358,17 @@ const ShareStories = () => {
             </TabsList>
             
             <TabsContent value="create" className="space-y-6">
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-3 bg-soft-purple rounded-full">
-                      <Music className="h-8 w-8 text-storyforge-purple" />
-                    </div>
-                  </div>
-                  <h2 className="text-xl font-semibold text-center mb-2">Add Sound</h2>
-                  <p className="text-gray-600 text-center mb-4">Enhance your stories with music and sound effects</p>
-                  <Button 
-                    className="w-full"
-                    onClick={() => handleExternalLink('TextMakerAI')}
-                  >
-                    Try TextMaker AI
-                  </Button>
-                </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-3 bg-soft-purple rounded-full">
-                      <Image className="h-8 w-8 text-storyforge-purple" />
-                    </div>
-                  </div>
-                  <h2 className="text-xl font-semibold text-center mb-2">Add Images</h2>
-                  <p className="text-gray-600 text-center mb-4">Illustrate your stories with AI-generated images</p>
-                  <Button 
-                    className="w-full"
-                    onClick={() => handleExternalLink('PictureMakerAI')}
-                  >
-                    Try PictureMaker AI
-                  </Button>
-                </div>
-                
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                  <div className="flex justify-center mb-4">
-                    <div className="p-3 bg-soft-purple rounded-full">
-                      <Mic className="h-8 w-8 text-storyforge-purple" />
-                    </div>
-                  </div>
-                  <h2 className="text-xl font-semibold text-center mb-2">Text to Speech</h2>
-                  <p className="text-gray-600 text-center mb-4">Convert your stories to spoken audio narration</p>
-                  <Button 
-                    className="w-full"
-                    onClick={() => handleExternalLink('TextMakerAI')}
-                  >
-                    Try TextMaker AI
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-md border border-gray-100">
-                <div className="flex items-center justify-center mb-4">
-                  <div className="p-3 bg-soft-yellow rounded-full">
-                    <BookText className="h-8 w-8 text-amber-600" />
-                  </div>
-                </div>
-                <h2 className="text-2xl font-semibold text-center mb-2">Word Count Feature</h2>
-                <p className="text-gray-600 text-center mb-4">
-                  Need a specific word count for your story? Our generator now supports creating stories with custom word counts.
-                </p>
-                <div className="flex justify-center">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => {
-                      window.location.href = '/';
-                    }}
-                  >
-                    Try the Word Count Feature
-                  </Button>
-                </div>
-              </div>
+              <EnhanceStoriesSection />
             </TabsContent>
             
             <TabsContent value="share" className="space-y-6" id="community-stories">
               <div className="mb-6 bg-white p-6 rounded-lg shadow-md border border-gray-100">
                 <h2 className="text-2xl font-semibold mb-4">Browse Community Stories</h2>
                 
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <Button 
-                    variant={activeTab === "latest" ? "default" : "outline"} 
-                    size="sm"
-                    onClick={() => filterStories("latest")}
-                  >
-                    Latest
-                  </Button>
-                  <Button 
-                    variant={activeTab === "popular" ? "default" : "outline"} 
-                    size="sm"
-                    onClick={() => filterStories("popular")}
-                  >
-                    Most Popular
-                  </Button>
-                  <Button 
-                    variant={activeTab === "fantasy" ? "default" : "outline"} 
-                    size="sm"
-                    onClick={() => filterStories("fantasy")}
-                  >
-                    Fantasy
-                  </Button>
-                  <Button 
-                    variant={activeTab === "scifi" ? "default" : "outline"} 
-                    size="sm"
-                    onClick={() => filterStories("scifi")}
-                  >
-                    Sci-Fi
-                  </Button>
-                  <Button 
-                    variant={activeTab === "mystery" ? "default" : "outline"} 
-                    size="sm"
-                    onClick={() => filterStories("mystery")}
-                  >
-                    Mystery
-                  </Button>
-                </div>
+                <StoryFilters 
+                  activeTab={activeTab}
+                  onFilterChange={setActiveTab}
+                />
                 
                 {isLoading ? (
                   <div className="flex justify-center items-center h-40">
@@ -547,91 +378,7 @@ const ShareStories = () => {
                 ) : (
                   <div className="space-y-6">
                     {stories.length > 0 ? (
-                      <div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Story</TableHead>
-                              <TableHead>Author</TableHead>
-                              <TableHead>Published</TableHead>
-                              <TableHead>Genre</TableHead>
-                              <TableHead>Engagement</TableHead>
-                              <TableHead>Actions</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {stories.map(story => (
-                              <TableRow key={story.id}>
-                                <TableCell className="font-medium">
-                                  <div className="max-w-xs">
-                                    <p className="font-semibold hover:text-storyforge-blue cursor-pointer truncate" 
-                                      onClick={() => {
-                                        toast({
-                                          title: story.title,
-                                          description: story.content.substring(0, 100) + "...",
-                                        });
-                                      }}
-                                    >
-                                      {story.title}
-                                    </p>
-                                  </div>
-                                </TableCell>
-                                <TableCell>{story.author}</TableCell>
-                                <TableCell>{formatDate(story.createdAt)}</TableCell>
-                                <TableCell>{story.params.genre}</TableCell>
-                                <TableCell>
-                                  <div className="flex items-center gap-3 text-xs text-gray-500">
-                                    <div className="flex items-center">
-                                      <Heart className="h-3 w-3 mr-1" />
-                                      {story.likes}
-                                    </div>
-                                    <div className="flex items-center">
-                                      <MessageSquare className="h-3 w-3 mr-1" />
-                                      {story.comments}
-                                    </div>
-                                    <div className="flex items-center">
-                                      <Share2 className="h-3 w-3 mr-1" />
-                                      {story.shares}
-                                    </div>
-                                  </div>
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex gap-2">
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      onClick={() => handleStoryAction("Like", story.id)}
-                                    >
-                                      <ThumbsUp className="h-4 w-4" />
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm" 
-                                      onClick={() => handleStoryAction("Dislike", story.id)}
-                                    >
-                                      <ThumbsDown className="h-4 w-4" />
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm"
-                                      onClick={() => handleStoryAction("Comment", story.id)}
-                                    >
-                                      <MessageSquare className="h-4 w-4" />
-                                    </Button>
-                                    <Button 
-                                      variant="ghost" 
-                                      size="sm"
-                                      onClick={() => handleStoryAction("Share", story.id)}
-                                    >
-                                      <Share2 className="h-4 w-4" />
-                                    </Button>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
+                      <StoryTable stories={stories} onStoryAction={handleStoryAction} />
                     ) : (
                       <div className="text-center p-12 bg-gray-50 rounded-lg">
                         <p className="text-gray-500">No stories found. Be the first to publish!</p>
@@ -642,47 +389,12 @@ const ShareStories = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {stories.map((story, index) => (
-                  <Card key={story.id} className="overflow-hidden">
-                    <CardHeader className="bg-gradient-to-r from-storyforge-blue to-storyforge-purple text-white">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-xs font-medium uppercase tracking-wide opacity-80">{story.params.genre} • {story.params.ageGroup}</p>
-                          <CardTitle className="mt-1">{story.title}</CardTitle>
-                          <CardDescription className="text-white/80 mt-1">by {story.author}</CardDescription>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <p className="text-gray-600 line-clamp-3">{story.content}</p>
-                    </CardContent>
-                    <CardFooter className="flex justify-between pt-0">
-                      <div className="flex items-center text-sm text-gray-500 gap-4">
-                        <button 
-                          className="flex items-center gap-1 hover:text-storyforge-blue transition-colors"
-                          onClick={() => handleStoryAction("Like", story.id)}
-                        >
-                          <Heart className="h-4 w-4" />
-                          <span>{story.likes}</span>
-                        </button>
-                        <button
-                          className="flex items-center gap-1 hover:text-storyforge-blue transition-colors"
-                          onClick={() => handleStoryAction("Comment", story.id)}
-                        >
-                          <MessageSquare className="h-4 w-4" />
-                          <span>{story.comments}</span>
-                        </button>
-                      </div>
-                      <Button 
-                        size="sm" 
-                        variant="ghost"
-                        onClick={() => handleStoryAction('Share', story.id)}
-                      >
-                        <Share2 className="h-4 w-4 mr-1" />
-                        Share
-                      </Button>
-                    </CardFooter>
-                  </Card>
+                {stories.map((story) => (
+                  <StoryCard 
+                    key={story.id} 
+                    story={story} 
+                    onStoryAction={handleStoryAction} 
+                  />
                 ))}
               </div>
             </TabsContent>
@@ -691,26 +403,23 @@ const ShareStories = () => {
       </main>
       
       {/* Comment Dialog */}
-      <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Add a Comment</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <Textarea 
-              placeholder="Write your comment here..." 
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              className="resize-none" 
-              rows={4}
-            />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCommenting(false)}>Cancel</Button>
-            <Button onClick={handlePostComment}>Post Comment</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CommentDialog
+        isOpen={isCommenting}
+        onClose={() => setIsCommenting(false)}
+        comment={newComment}
+        onCommentChange={setNewComment}
+        onPostComment={handlePostComment}
+      />
+
+      <PublishStoryDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        title={newStoryTitle}
+        content={newStoryContent}
+        onTitleChange={setNewStoryTitle}
+        onContentChange={setNewStoryContent}
+        onPublish={handlePostStory}
+      />
 
       <Footer />
     </div>
