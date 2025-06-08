@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import StoryGenerator from '@/components/StoryGenerator';
 import StoryDisplay from '@/components/StoryDisplay';
@@ -8,12 +7,45 @@ import HelpGuide from '@/components/HelpGuide';
 import Footer from '@/components/Footer';
 import { Sparkles } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
+import { useAuth } from '@clerk/clerk-react';
 
 const Index = () => {
+  const { isSignedIn } = useAuth();
   const [storyContent, setStoryContent] = useState<string>('');
   const [storyTitle, setStoryTitle] = useState<string>('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Load story from localStorage on component mount
+  useEffect(() => {
+    const savedStoryContent = localStorage.getItem('currentStoryContent');
+    const savedStoryTitle = localStorage.getItem('currentStoryTitle');
+    
+    if (savedStoryContent && savedStoryTitle) {
+      setStoryContent(savedStoryContent);
+      setStoryTitle(savedStoryTitle);
+    }
+  }, []);
+
+  // Save story to localStorage whenever it changes (for non-logged-in users)
+  useEffect(() => {
+    if (storyContent && storyTitle) {
+      localStorage.setItem('currentStoryContent', storyContent);
+      localStorage.setItem('currentStoryTitle', storyTitle);
+    }
+  }, [storyContent, storyTitle]);
+
+  // Clean up localStorage when user logs in and has a story
+  useEffect(() => {
+    if (isSignedIn && storyContent && storyTitle) {
+      // Keep the story but clean up the temporary storage after a short delay
+      // This ensures the story persists through the login transition
+      setTimeout(() => {
+        localStorage.removeItem('currentStoryContent');
+        localStorage.removeItem('currentStoryTitle');
+      }, 1000);
+    }
+  }, [isSignedIn, storyContent, storyTitle]);
 
   const handleStoryGenerated = (story: string, title: string) => {
     setStoryContent(story);
