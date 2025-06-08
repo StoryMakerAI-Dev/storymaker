@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import StoryGenerator from '@/components/StoryGenerator';
@@ -16,8 +17,32 @@ const Index = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
-  // Load story from localStorage on component mount
+  // Load story from localStorage or URL on component mount
   useEffect(() => {
+    // First check if there's a shared story in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedStory = urlParams.get('shared');
+    
+    if (sharedStory) {
+      try {
+        const storyData = JSON.parse(decodeURIComponent(sharedStory));
+        if (storyData.title && storyData.content && storyData.shared) {
+          setStoryContent(storyData.content);
+          setStoryTitle(storyData.title);
+          toast({
+            title: "Shared story loaded!",
+            description: "Someone shared this amazing story with you.",
+          });
+          // Clean up the URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+          return; // Don't load from localStorage if we have a shared story
+        }
+      } catch (error) {
+        console.error('Error parsing shared story:', error);
+      }
+    }
+    
+    // If no shared story, load from localStorage
     const savedStoryContent = localStorage.getItem('currentStoryContent');
     const savedStoryTitle = localStorage.getItem('currentStoryTitle');
     

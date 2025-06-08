@@ -53,43 +53,11 @@ const StoryActions: React.FC<StoryActionsProps> = ({
     try {
       setIsPublishing(true);
       
-      // In a real implementation, this would save to a database
-      // Simulating API call with a timeout for now
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Store the published story in localStorage for demo purposes
-      const publishedStories = JSON.parse(localStorage.getItem('publishedStories') || '[]');
-      
-      const newStory = {
-        id: uuidv4(),
-        title: storyTitle,
-        content: storyContent,
-        author: 'Current User',
-        publishedAt: new Date().toISOString(),
-        likes: 0,
-        comments: 0,
-        shares: 0,
-        params: storyParams || {
-          ageGroup: 'children',
-          genre: 'fantasy',
-          characters: '',
-          pronouns: 'she/her',
-          setting: '',
-          theme: '',
-          additionalDetails: '',
-        }
-      };
-      
-      publishedStories.push(newStory);
-      localStorage.setItem('publishedStories', JSON.stringify(publishedStories));
-      
+      // Show message that publishing feature is in development
       toast({
-        title: "Story published!",
-        description: "Your story is now available in the community stories section",
+        title: "Publishing feature coming soon!",
+        description: "We're working hard to bring you the ability to publish stories to our community. For now, you can share stories directly with friends using the Share button.",
       });
-      
-      // Use react-router-dom's navigate function to redirect
-      navigate('/share-stories');
       
     } catch (error) {
       console.error("Error publishing story:", error);

@@ -40,13 +40,14 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
 
   const generateStoryUrl = () => {
     const baseUrl = window.location.origin;
-    // Encode the story data in URL parameters
+    // Create a more robust story sharing system
     const storyData = {
       title: storyTitle,
-      content: storyContent
+      content: storyContent,
+      shared: true
     };
     const encodedData = encodeURIComponent(JSON.stringify(storyData));
-    return `${baseUrl}?story=${encodedData}`;
+    return `${baseUrl}/?shared=${encodedData}`;
   };
 
   const handleShare = async (platform: string) => {
@@ -78,7 +79,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
         await navigator.clipboard.writeText(shareUrl);
         toast({
           title: "Link copied!",
-          description: "Story link has been copied to clipboard",
+          description: "Story link has been copied to clipboard. Share it with your friends!",
         });
       } catch (error) {
         console.error('Error copying link:', error);
@@ -94,7 +95,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
           
           toast({
             title: "Link copied!",
-            description: "Story link has been copied to clipboard",
+            description: "Story link has been copied to clipboard. Share it with your friends!",
           });
         } catch (fallbackError) {
           toast({
@@ -119,19 +120,25 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
 
     try {
       const senderName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.emailAddresses[0]?.emailAddress || 'A friend';
-      const shareUrl = generateStoryUrl();
       
-      const defaultMessage = `Hi there!\n\n${senderName} wanted to share this amazing AI-generated story with you: "${storyTitle}"\n\n${storyContent.substring(0, 300)}...\n\nRead the full story at: ${shareUrl}\n\nEnjoy reading!`;
-      
+      // Create a simple email with the story content
       const emailSubject = encodeURIComponent(`${senderName} shared a story: "${storyTitle}"`);
-      const emailBody = encodeURIComponent(customMessage || defaultMessage);
+      const emailBody = encodeURIComponent(
+        `Hi there!\n\n${senderName} wanted to share this AI-generated story with you:\n\n` +
+        `"${storyTitle}"\n\n${storyContent}\n\n` +
+        `This story was created using our AI Story Generator. ` +
+        `${customMessage ? `\n\nPersonal message: ${customMessage}` : ''}\n\n` +
+        `Create your own stories at: ${window.location.origin}`
+      );
+      
       const mailtoLink = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
       
-      window.location.href = mailtoLink;
+      // Open email client
+      window.open(mailtoLink, '_blank');
       
       toast({
-        title: "Email client opened",
-        description: `Email prepared for ${recipientEmail}`,
+        title: "Email opened",
+        description: `Email client opened with the story for ${recipientEmail}`,
       });
       
       setIsEmailDialogOpen(false);
@@ -166,7 +173,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
             className="flex items-center cursor-pointer hover:bg-gray-50 rounded-md px-3 py-2 transition-colors"
           >
             <Mail className="w-4 h-4 mr-2 text-gray-600" />
-            Email
+            Email Story
           </DropdownMenuItem>
           <DropdownMenuItem 
             onClick={() => handleShare('copy')}
@@ -181,7 +188,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
       <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Share Story via Email</DialogTitle>
+            <DialogTitle>Share "{storyTitle}" via Email</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
@@ -195,13 +202,13 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
               />
             </div>
             <div>
-              <Label htmlFor="message">Custom Message (Optional)</Label>
+              <Label htmlFor="message">Personal Message (Optional)</Label>
               <Textarea
                 id="message"
                 placeholder="Add a personal message..."
                 value={customMessage}
                 onChange={(e) => setCustomMessage(e.target.value)}
-                rows={4}
+                rows={3}
               />
             </div>
             <div className="flex justify-end space-x-2">
@@ -209,7 +216,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
                 Cancel
               </Button>
               <Button onClick={handleEmailShare}>
-                Send Email
+                Open Email Client
               </Button>
             </div>
           </div>
