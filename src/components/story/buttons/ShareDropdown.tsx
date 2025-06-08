@@ -38,6 +38,17 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
   const [recipientEmail, setRecipientEmail] = useState('');
   const [customMessage, setCustomMessage] = useState('');
 
+  const generateStoryUrl = () => {
+    const baseUrl = window.location.origin;
+    // Encode the story data in URL parameters
+    const storyData = {
+      title: storyTitle,
+      content: storyContent
+    };
+    const encodedData = encodeURIComponent(JSON.stringify(storyData));
+    return `${baseUrl}?story=${encodedData}`;
+  };
+
   const handleShare = async (platform: string) => {
     if (!isShareable) {
       toast({
@@ -63,7 +74,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
     
     if (platform === 'copy') {
       try {
-        const shareUrl = window.location.href;
+        const shareUrl = generateStoryUrl();
         await navigator.clipboard.writeText(shareUrl);
         toast({
           title: "Link copied!",
@@ -73,7 +84,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
         console.error('Error copying link:', error);
         // Fallback for copy if clipboard API fails
         try {
-          const shareUrl = window.location.href;
+          const shareUrl = generateStoryUrl();
           const textArea = document.createElement('textarea');
           textArea.value = shareUrl;
           document.body.appendChild(textArea);
@@ -108,7 +119,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
 
     try {
       const senderName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.emailAddresses[0]?.emailAddress || 'A friend';
-      const shareUrl = window.location.href;
+      const shareUrl = generateStoryUrl();
       
       const defaultMessage = `Hi there!\n\n${senderName} wanted to share this amazing AI-generated story with you: "${storyTitle}"\n\n${storyContent.substring(0, 300)}...\n\nRead the full story at: ${shareUrl}\n\nEnjoy reading!`;
       
