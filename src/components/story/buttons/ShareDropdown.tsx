@@ -8,18 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { useAuth, useUser } from '@clerk/clerk-react';
+import { useAuth } from '@clerk/clerk-react';
+import EmailShareDialog from './share/EmailShareDialog';
+import { copyStoryLink } from './share/ShareUtils';
 
 interface ShareDropdownProps {
   isShareable: boolean;
@@ -33,22 +25,7 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
   storyContent
 }) => {
   const { isSignedIn } = useAuth();
-  const { user } = useUser();
   const [isEmailDialogOpen, setIsEmailDialogOpen] = useState(false);
-  const [recipientEmail, setRecipientEmail] = useState('');
-  const [customMessage, setCustomMessage] = useState('');
-
-  const generateStoryUrl = () => {
-    const baseUrl = window.location.origin;
-    // Create a more robust story sharing system
-    const storyData = {
-      title: storyTitle,
-      content: storyContent,
-      shared: true
-    };
-    const encodedData = encodeURIComponent(JSON.stringify(storyData));
-    return `${baseUrl}/?shared=${encodedData}`;
-  };
 
   const handleShare = async (platform: string) => {
     if (!isShareable) {
@@ -74,83 +51,20 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
     }
     
     if (platform === 'copy') {
-      try {
-        const shareUrl = generateStoryUrl();
-        await navigator.clipboard.writeText(shareUrl);
+      const result = await copyStoryLink(storyTitle, storyContent);
+      
+      if (result.success) {
         toast({
           title: "Link copied!",
-          description: "Story link has been copied to clipboard. Share it with your friends!",
+          description: "Story link has been copied with instructions to scroll down and see the story!",
         });
-      } catch (error) {
-        console.error('Error copying link:', error);
-        // Fallback for copy if clipboard API fails
-        try {
-          const shareUrl = generateStoryUrl();
-          const textArea = document.createElement('textarea');
-          textArea.value = shareUrl;
-          document.body.appendChild(textArea);
-          textArea.select();
-          document.execCommand('copy');
-          document.body.removeChild(textArea);
-          
-          toast({
-            title: "Link copied!",
-            description: "Story link has been copied to clipboard. Share it with your friends!",
-          });
-        } catch (fallbackError) {
-          toast({
-            title: "Copy failed",
-            description: "Unable to copy link. Please copy the URL manually.",
-            variant: "destructive",
-          });
-        }
+      } else {
+        toast({
+          title: "Copy failed",
+          description: "Unable to copy link. Please copy the URL manually.",
+          variant: "destructive",
+        });
       }
-    }
-  };
-
-  const handleEmailShare = () => {
-    if (!recipientEmail) {
-      toast({
-        title: "Email required",
-        description: "Please enter a recipient email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      const senderName = user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user?.emailAddresses[0]?.emailAddress || 'A friend';
-      
-      // Create a simple email with the story content
-      const emailSubject = encodeURIComponent(`${senderName} shared a story: "${storyTitle}"`);
-      const emailBody = encodeURIComponent(
-        `Hi there!\n\n${senderName} wanted to share this AI-generated story with you:\n\n` +
-        `"${storyTitle}"\n\n${storyContent}\n\n` +
-        `This story was created using our AI Story Generator. ` +
-        `${customMessage ? `\n\nPersonal message: ${customMessage}` : ''}\n\n` +
-        `Create your own stories at: ${window.location.origin}`
-      );
-      
-      const mailtoLink = `mailto:${recipientEmail}?subject=${emailSubject}&body=${emailBody}`;
-      
-      // Open email client
-      window.open(mailtoLink, '_blank');
-      
-      toast({
-        title: "Email opened",
-        description: `Email client opened with the story for ${recipientEmail}`,
-      });
-      
-      setIsEmailDialogOpen(false);
-      setRecipientEmail('');
-      setCustomMessage('');
-    } catch (error) {
-      console.error('Error sharing via email:', error);
-      toast({
-        title: "Email sharing failed",
-        description: "There was an error preparing the email. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -185,43 +99,12 @@ const ShareDropdown: React.FC<ShareDropdownProps> = ({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={isEmailDialogOpen} onOpenChange={setIsEmailDialogOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Share "{storyTitle}" via Email</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="recipient">Recipient Email</Label>
-              <Input
-                id="recipient"
-                type="email"
-                placeholder="friend@example.com"
-                value={recipientEmail}
-                onChange={(e) => setRecipientEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <Label htmlFor="message">Personal Message (Optional)</Label>
-              <Textarea
-                id="message"
-                placeholder="Add a personal message..."
-                value={customMessage}
-                onChange={(e) => setCustomMessage(e.target.value)}
-                rows={3}
-              />
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsEmailDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleEmailShare}>
-                Open Email Client
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <EmailShareDialog
+        isOpen={isEmailDialogOpen}
+        onClose={() => setIsEmailDialogOpen(false)}
+        storyTitle={storyTitle}
+        storyContent={storyContent}
+      />
     </>
   );
 };

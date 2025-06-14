@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -16,6 +15,11 @@ import StoryCard from '@/components/share/StoryCard';
 import PublishStoryDialog from '@/components/share/PublishStoryDialog';
 import CommentDialog from '@/components/share/CommentDialog';
 import EnhanceStoriesSection from '@/components/share/EnhanceStoriesSection';
+
+// Import utility functions
+import { handleStoryAction } from '@/components/share/StoryManagement';
+import { handlePostStory } from '@/components/share/StoryPublisher';
+import { handlePostComment, StoryComment } from '@/components/share/CommentManager';
 
 // Sample data - in a real app this would come from an API or database
 const exampleSharedStories: SharedStory[] = [
@@ -155,168 +159,16 @@ const ShareStories = () => {
     fetchStories();
   }, []);
 
-  const handleStoryAction = (action: string, storyId: string) => {
-    if (!isSignedIn) {
-      toast({
-        title: "Login required",
-        description: `Please login to ${action.toLowerCase()} stories`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Find the story and update it
-    const updatedStories = stories.map(story => {
-      if (story.id === storyId) {
-        switch (action) {
-          case 'Like':
-            return { ...story, likes: story.likes + 1 };
-          case 'Dislike':
-            return { ...story, likes: Math.max(0, story.likes - 1) };
-          case 'Comment':
-            setSelectedStoryId(storyId);
-            setIsCommenting(true);
-            return story;
-          case 'Share':
-            return { ...story, shares: story.shares + 1 };
-          default:
-            return story;
-        }
-      }
-      return story;
-    });
-
-    setStories(updatedStories);
-
-    if (action !== 'Comment') {
-      toast({
-        title: `Story ${action}d!`,
-        description: action === 'Like' ? "You liked this story" : 
-                    action === 'Dislike' ? "You disliked this story" :
-                    action === 'Share' ? "Story link copied to clipboard" : 
-                    "Comment feature coming soon",
-      });
-    }
-
-    if (action === 'Share') {
-      const story = stories.find(s => s.id === storyId);
-      if (story) {
-        const shareText = `Check out this story: "${story.title}" by ${story.author}`;
-        navigator.clipboard.writeText(`${shareText}\n\n${window.location.href}`);
-      }
-    }
+  const onStoryAction = (action: string, storyId: string) => {
+    handleStoryAction(action, storyId, stories, setStories, setSelectedStoryId, setIsCommenting, isSignedIn);
   };
 
-  const filterStories = (filter: string) => {
-    setActiveTab(filter);
-    // In a real app, this would fetch different stories based on the filter
+  const onPostStory = () => {
+    handlePostStory(newStoryTitle, newStoryContent, isSignedIn, userId, stories, setStories, setNewStoryTitle, setNewStoryContent, setIsDialogOpen);
   };
 
-  const handlePostStory = () => {
-    if (!isSignedIn) {
-      toast({
-        title: "Login required",
-        description: "Please login to post stories",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!newStoryTitle.trim() || !newStoryContent.trim()) {
-      toast({
-        title: "Missing information",
-        description: "Please provide both a title and content for your story",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Create a new story object
-    const newStory: SharedStory = {
-      id: `story-${Date.now()}`,
-      title: newStoryTitle,
-      content: newStoryContent,
-      createdAt: new Date().toISOString(),
-      author: "You", // In a real app, this would be the user's name
-      authorId: userId || "unknown",
-      isPublic: true,
-      likes: 0,
-      comments: 0,
-      shares: 0,
-      params: {
-        ageGroup: "Adults",
-        genre: "Fantasy",
-        characters: "",
-        pronouns: "",
-        setting: "",
-        theme: "",
-        additionalDetails: "",
-      }
-    };
-
-    // Add the new story to the list
-    setStories([newStory, ...stories]);
-
-    // Reset the form
-    setNewStoryTitle("");
-    setNewStoryContent("");
-    setIsDialogOpen(false);
-
-    toast({
-      title: "Story posted!",
-      description: "Your story has been published successfully",
-    });
-  };
-
-  const handlePostComment = () => {
-    if (!isSignedIn) {
-      toast({
-        title: "Login required",
-        description: "Please login to comment",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!newComment.trim() || !selectedStoryId) {
-      toast({
-        title: "Missing information",
-        description: "Please enter a comment",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Create a new comment
-    const comment: StoryComment = {
-      id: `comment-${Date.now()}`,
-      storyId: selectedStoryId,
-      author: "You", // In a real app, this would be the user's name
-      authorId: userId || "unknown",
-      content: newComment,
-      createdAt: new Date().toISOString()
-    };
-
-    // Add the comment to the list
-    setComments([...comments, comment]);
-
-    // Update the comment count for the story
-    const updatedStories = stories.map(story => {
-      if (story.id === selectedStoryId) {
-        return { ...story, comments: story.comments + 1 };
-      }
-      return story;
-    });
-    setStories(updatedStories);
-
-    // Reset the comment form
-    setNewComment("");
-    setIsCommenting(false);
-
-    toast({
-      title: "Comment posted!",
-      description: "Your comment has been added successfully",
-    });
+  const onPostComment = () => {
+    handlePostComment(newComment, selectedStoryId, isSignedIn, userId, comments, setComments, stories, setStories, setNewComment, setIsCommenting);
   };
 
   return (
@@ -357,7 +209,7 @@ const ShareStories = () => {
                 ) : (
                   <div className="space-y-6">
                     {stories.length > 0 ? (
-                      <StoryTable stories={stories} onStoryAction={handleStoryAction} />
+                      <StoryTable stories={stories} onStoryAction={onStoryAction} />
                     ) : (
                       <div className="text-center p-12 bg-gray-50 rounded-lg">
                         <p className="text-gray-500">No stories found. Be the first to publish!</p>
@@ -372,7 +224,7 @@ const ShareStories = () => {
                   <StoryCard 
                     key={story.id} 
                     story={story} 
-                    onStoryAction={handleStoryAction} 
+                    onStoryAction={onStoryAction} 
                   />
                 ))}
               </div>
@@ -387,7 +239,7 @@ const ShareStories = () => {
         onClose={() => setIsCommenting(false)}
         comment={newComment}
         onCommentChange={setNewComment}
-        onPostComment={handlePostComment}
+        onPostComment={onPostComment}
       />
 
       <PublishStoryDialog
@@ -397,7 +249,7 @@ const ShareStories = () => {
         content={newStoryContent}
         onTitleChange={setNewStoryTitle}
         onContentChange={setNewStoryContent}
-        onPublish={handlePostStory}
+        onPublish={onPostStory}
       />
 
       <Footer />
