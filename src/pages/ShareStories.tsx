@@ -88,15 +88,7 @@ const exampleSharedStories: SharedStory[] = [
   }
 ];
 
-// Sample comments data structure
-interface StoryComment {
-  id: string;
-  storyId: string;
-  author: string;
-  authorId: string;
-  content: string;
-  createdAt: string;
-}
+// Sample comments data structure is now imported from CommentManager
 
 const ShareStories = () => {
   const { isSignedIn, userId } = useAuth();
