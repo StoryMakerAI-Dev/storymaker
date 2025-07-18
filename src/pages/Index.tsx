@@ -7,7 +7,7 @@ import StoryEditor from '@/components/story/StoryEditor';
 import HelpGuide from '@/components/HelpGuide';
 import Footer from '@/components/Footer';
 import { Sparkles } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@clerk/clerk-react';
 
 const Index = () => {
