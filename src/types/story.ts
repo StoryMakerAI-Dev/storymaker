@@ -2,6 +2,7 @@
 export type StoryParams = {
   ageGroup: string;
   genre: string;
+  contentType?: 'story' | 'poem';
   characters: string;
   numberOfCharacters?: number;
   pronouns: string;
@@ -10,11 +11,13 @@ export type StoryParams = {
   additionalDetails: string;
   famousCharacter?: string;
   wordCount?: number;
+  font?: string;
 };
 
 export const initialStoryParams: StoryParams = {
   ageGroup: 'children',
   genre: 'fantasy',
+  contentType: 'story',
   characters: '',
   numberOfCharacters: 1,
   pronouns: 'they/them',
@@ -23,6 +26,7 @@ export const initialStoryParams: StoryParams = {
   additionalDetails: '',
   famousCharacter: '',
   wordCount: 0,
+  font: 'crimson',
 };
 
 export type SavedStory = {

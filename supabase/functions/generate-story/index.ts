@@ -36,8 +36,28 @@ Please refine this story with the following instruction: ${refinementInstruction
 Maintain approximately ${targetWords} words and keep it age-appropriate for ${ageGroup}.
 Provide the refined story with its title on the first line, prefixed with "TITLE: "`;
     } else {
-      // New story generation mode
-      systemPrompt = `You are a creative story writer. Generate engaging, well-structured stories based on the provided parameters. 
+      // Check if we're generating a poem
+      const isPoem = genre === 'poem';
+      
+      if (isPoem) {
+        systemPrompt = `You are a creative poet. Generate beautiful, evocative poems based on the provided parameters.
+- Keep the poem around ${targetWords > 200 ? Math.floor(targetWords / 2) : targetWords} words
+- Use proper stanza breaks for readability
+- Make the poem age-appropriate for ${ageGroup}
+- Include vivid imagery, metaphors, and poetic devices
+- Create a complete poem with emotional depth
+- Use ${pronouns} pronouns when referring to the main subject(s)`;
+
+        userPrompt = `Write a ${ageGroup} poem with these details:
+Subject: ${characters || 'Create an interesting poetic subject'}
+Setting/Imagery: ${setting || 'Create vivid imagery'}
+Theme: ${theme || 'Create an emotional journey'}
+Target length: approximately ${targetWords > 200 ? Math.floor(targetWords / 2) : targetWords} words
+
+Also provide a poetic title (on the first line, prefixed with "TITLE: ")`;
+      } else {
+        // New story generation mode
+        systemPrompt = `You are a creative story writer. Generate engaging, well-structured stories based on the provided parameters. 
 - Keep the story around ${targetWords} words
 - Use proper paragraph breaks for readability
 - Make the story age-appropriate for ${ageGroup}
@@ -45,13 +65,14 @@ Provide the refined story with its title on the first line, prefixed with "TITLE
 - Create a complete story with beginning, middle, and end
 - Use ${pronouns} pronouns when referring to the main character(s)`;
 
-      userPrompt = `Write a ${ageGroup} story with these details:
+        userPrompt = `Write a ${ageGroup} story with these details:
 Characters: ${characters || 'Create interesting characters'}
 Setting: ${setting || 'Create an interesting setting'}
 Theme: ${theme || 'Create an engaging adventure'}
 Target length: approximately ${targetWords} words
 
 Also provide a creative title for this story (on the first line, prefixed with "TITLE: ")`;
+      }
     }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {

@@ -14,7 +14,7 @@ import StoryActions from './story/StoryActions';
 import ClerkAuthPanel from './auth/ClerkAuthPanel';
 
 interface StoryGeneratorProps {
-  onStoryGenerated: (story: string, title: string, imageUrl?: string, storyId?: string) => void;
+  onStoryGenerated: (story: string, title: string, imageUrl?: string, storyId?: string, font?: string) => void;
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
   storyTitle: string;
@@ -113,6 +113,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
           ageGroup: paramsToUse.ageGroup,
           pronouns: paramsToUse.pronouns,
           wordCount: paramsToUse.wordCount,
+          genre: paramsToUse.genre || 'fantasy',
           existingStory: refinementInstruction ? storyContent : undefined,
           refinementInstruction
         }
@@ -151,7 +152,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
         }
       }
 
-      onStoryGenerated(storyData.story, storyData.title, coverImageUrl, savedStoryId);
+      onStoryGenerated(storyData.story, storyData.title, coverImageUrl, savedStoryId, paramsToUse.font);
       
       toast({
         title: refinementInstruction ? "Story refined!" : "Story created!",

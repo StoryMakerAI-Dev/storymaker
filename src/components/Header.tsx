@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { useClerk } from '@clerk/clerk-react';
+import logo from '@/assets/logo.avif';
 
 const Header = () => {
   const isMobile = useIsMobile();
@@ -32,8 +33,8 @@ const Header = () => {
     <header className="w-full border-b glass-card sticky top-0 z-50 shadow-lg">
       <div className="container max-w-6xl mx-auto flex justify-between items-center px-4 md:px-6 py-5">
         <Link to="/" className="flex items-center gap-3 hover-scale group">
-          <div className="p-2.5 bg-gradient-to-br from-storyforge-blue via-storyforge-purple to-storyforge-accent rounded-xl shadow-lg group-hover:shadow-xl transition-all">
-            <BookOpen className="h-6 w-6 text-white" />
+          <div className="p-1 bg-white rounded-xl shadow-lg group-hover:shadow-xl transition-all border-2 border-storyforge-purple/20">
+            <img src={logo} alt="StoryMaker AI Logo" className="h-10 w-10 object-contain" />
           </div>
           <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-display font-extrabold`}>
             <span className="gradient-text">StoryMaker AI</span>

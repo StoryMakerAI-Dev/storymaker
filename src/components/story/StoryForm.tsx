@@ -4,6 +4,7 @@ import { StoryParams } from '@/types/story';
 import CharacterInputSection from './CharacterInputSection';
 import PronounManagement from './PronounManagement';
 import StoryBasicFields from './StoryBasicFields';
+import FontSelector from './FontSelector';
 
 interface StoryFormProps {
   storyParams: StoryParams;
@@ -36,6 +37,7 @@ const StoryForm: React.FC<StoryFormProps> = ({
       <StoryBasicFields
         ageGroup={storyParams.ageGroup}
         genre={storyParams.genre}
+        contentType={storyParams.contentType || 'story'}
         setting={storyParams.setting}
         theme={storyParams.theme}
         additionalDetails={storyParams.additionalDetails}
@@ -43,6 +45,11 @@ const StoryForm: React.FC<StoryFormProps> = ({
         onInputChange={handleInputChange}
         onSelectChange={handleSelectChange}
         onWordCountChange={handleWordCountChange}
+      />
+      
+      <FontSelector
+        selectedFont={storyParams.font || 'crimson'}
+        onFontChange={(font) => handleSelectChange('font', font)}
       />
       
       <div className="space-y-4 mt-6">

@@ -16,6 +16,7 @@ const Index = () => {
   const [storyTitle, setStoryTitle] = useState<string>('');
   const [coverImageUrl, setCoverImageUrl] = useState<string>();
   const [currentStoryId, setCurrentStoryId] = useState<string>();
+  const [currentFont, setCurrentFont] = useState<string>('crimson');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -74,11 +75,12 @@ const Index = () => {
     }
   }, [isSignedIn, storyContent, storyTitle]);
 
-  const handleStoryGenerated = (story: string, title: string, imageUrl?: string, storyId?: string) => {
+  const handleStoryGenerated = (story: string, title: string, imageUrl?: string, storyId?: string, font?: string) => {
     setStoryContent(story);
     setStoryTitle(title);
     setCoverImageUrl(imageUrl);
     setCurrentStoryId(storyId);
+    setCurrentFont(font || 'crimson');
     window.scrollTo({ 
       top: document.body.scrollHeight, 
       behavior: 'smooth' 
@@ -168,6 +170,7 @@ const Index = () => {
               title={storyTitle} 
               content={storyContent}
               coverImageUrl={coverImageUrl}
+              fontClass={currentFont === 'crimson' ? 'font-story' : currentFont === 'inter' ? 'font-sans' : 'font-display'}
               onEdit={handleEditStory}
             />
           </section>

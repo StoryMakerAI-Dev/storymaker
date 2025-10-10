@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 interface StoryBasicFieldsProps {
   ageGroup: string;
   genre: string;
+  contentType: 'story' | 'poem';
   setting: string;
   theme: string;
   additionalDetails: string;
@@ -21,6 +22,7 @@ interface StoryBasicFieldsProps {
 const StoryBasicFields: React.FC<StoryBasicFieldsProps> = ({
   ageGroup,
   genre,
+  contentType,
   setting,
   theme,
   additionalDetails,
@@ -32,6 +34,22 @@ const StoryBasicFields: React.FC<StoryBasicFieldsProps> = ({
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div>
+          <Label htmlFor="contentType">Content Type</Label>
+          <Select 
+            value={contentType} 
+            onValueChange={(value) => onSelectChange('contentType', value)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select content type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="story">Story</SelectItem>
+              <SelectItem value="poem">Poem</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
         <div>
           <Label htmlFor="ageGroup">Age Group (for readers)</Label>
           <Select 
@@ -48,26 +66,34 @@ const StoryBasicFields: React.FC<StoryBasicFieldsProps> = ({
             </SelectContent>
           </Select>
         </div>
-        
-        <div>
-          <Label htmlFor="genre">Genre</Label>
-          <Select 
-            value={genre} 
-            onValueChange={(value) => onSelectChange('genre', value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select genre" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="fantasy">Fantasy</SelectItem>
-              <SelectItem value="adventure">Adventure</SelectItem>
-              <SelectItem value="mystery">Mystery</SelectItem>
-              <SelectItem value="science-fiction">Science Fiction</SelectItem>
-              <SelectItem value="fairy-tale">Fairy Tale</SelectItem>
-              <SelectItem value="historical">Historical</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      </div>
+      
+      <div className="mb-6">
+        <Label htmlFor="genre">Genre/Style</Label>
+        <Select 
+          value={genre} 
+          onValueChange={(value) => onSelectChange('genre', value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select genre" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="fantasy">Fantasy</SelectItem>
+            <SelectItem value="adventure">Adventure</SelectItem>
+            <SelectItem value="mystery">Mystery</SelectItem>
+            <SelectItem value="science-fiction">Science Fiction</SelectItem>
+            <SelectItem value="fairy-tale">Fairy Tale</SelectItem>
+            <SelectItem value="historical">Historical</SelectItem>
+            {contentType === 'poem' && (
+              <>
+                <SelectItem value="haiku">Haiku</SelectItem>
+                <SelectItem value="limerick">Limerick</SelectItem>
+                <SelectItem value="free-verse">Free Verse</SelectItem>
+                <SelectItem value="sonnet">Sonnet</SelectItem>
+              </>
+            )}
+          </SelectContent>
+        </Select>
       </div>
       
       <div>

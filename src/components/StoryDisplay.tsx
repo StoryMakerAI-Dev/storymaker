@@ -11,9 +11,10 @@ interface StoryDisplayProps {
   content: string;
   coverImageUrl?: string;
   onEdit?: () => void;
+  fontClass?: string;
 }
 
-const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, coverImageUrl, onEdit }) => {
+const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, coverImageUrl, onEdit, fontClass = 'font-story' }) => {
   const { toast } = useToast();
   const storyRef = useRef<HTMLDivElement>(null);
   const [bookMode, setBookMode] = useState<boolean>(false);
@@ -142,7 +143,12 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, coverImageU
           className="p-10 md:p-12 story-container bg-gradient-to-b from-white to-gray-50/50"
         >
           {paragraphs.map((paragraph, index) => (
-            <p key={index} className="font-story text-lg md:text-xl mb-8 leading-loose text-gray-800 first-letter:text-5xl first-letter:font-bold first-letter:text-storyforge-purple first-letter:mr-1 first-letter:float-left">
+            <p 
+              key={index} 
+              className={`${fontClass} text-lg md:text-xl mb-8 leading-loose text-gray-800 ${
+                index === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:text-storyforge-purple first-letter:mr-1 first-letter:float-left' : ''
+              }`}
+            >
               {paragraph}
             </p>
           ))}
