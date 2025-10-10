@@ -5,7 +5,8 @@ import { toast } from '@/hooks/use-toast';
 import { useUser } from '@clerk/clerk-react';
 
 import { StoryParams, initialStoryParams, SavedStory } from '@/types/story';
-import { validateInputs, generateStoryContent } from '@/utils/storyUtils';
+import { validateInputs } from '@/utils/storyUtils';
+import { supabase } from '@/integrations/supabase/client';
 
 import StoryForm from './story/StoryForm';
 import StoryActions from './story/StoryActions';
@@ -100,24 +101,37 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     setIsGenerating(true);
     
     try {
-      setTimeout(() => {
-        const { title, story } = generateStoryContent(paramsToUse);
-        
-        onStoryGenerated(story, title);
-        setIsGenerating(false);
-        
-        toast({
-          title: "Story created!",
-          description: "Your unique story has been generated with grammar checking applied.",
-        });
-      }, 2000);
+      const { data, error } = await supabase.functions.invoke('generate-story', {
+        body: {
+          characters: paramsToUse.characters,
+          setting: paramsToUse.setting,
+          theme: paramsToUse.theme,
+          ageGroup: paramsToUse.ageGroup,
+          pronouns: paramsToUse.pronouns,
+          wordCount: paramsToUse.wordCount
+        }
+      });
+
+      if (error) throw error;
+      
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      onStoryGenerated(data.story, data.title);
+      
+      toast({
+        title: "Story created!",
+        description: "Your AI-powered story has been generated.",
+      });
     } catch (error) {
       console.error("Error generating story:", error);
       toast({
         title: "Error",
-        description: "Failed to generate story. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to generate story. Please try again.",
         variant: "destructive",
       });
+    } finally {
       setIsGenerating(false);
     }
   };
