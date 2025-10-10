@@ -113,21 +113,6 @@ const ClerkAuthPanel: React.FC<ClerkAuthPanelProps> = ({ onLoadStory }) => {
             <SignUpButton mode="modal">
               <Button variant="outline" className="w-full">Create Account</Button>
             </SignUpButton>
-            
-            <div className="mt-4 text-center">
-              <Button 
-                variant="link" 
-                className="text-storyforge-blue"
-                onClick={() => {
-                  toast({
-                    title: "Coming soon!",
-                    description: "Redemption code feature will be available soon."
-                  });
-                }}
-              >
-                Do you have a Code to use? CLICK HERE
-              </Button>
-            </div>
           </div>
         )}
       </SheetContent>

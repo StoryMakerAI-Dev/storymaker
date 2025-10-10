@@ -38,7 +38,6 @@ const Header = () => {
           </div>
           <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-display font-extrabold`}>
             <span className="gradient-text">StoryMaker AI</span>
-            {!isMobile && <span className="ml-2 text-xs bg-gradient-to-r from-storyforge-yellow/20 to-storyforge-accent/20 text-gray-700 px-2.5 py-1 rounded-full border border-storyforge-accent/30 font-semibold">Beta</span>}
           </h1>
         </Link>
         
@@ -49,6 +48,17 @@ const Header = () => {
               <span className="font-semibold text-gray-700 text-sm">AI-Powered Stories</span>
             </div>
           )}
+          
+          <Link to="/share-stories">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-2 hover-scale"
+            >
+              <BookOpen className="h-4 w-4" />
+              {!isMobile && <span className="font-medium">Community</span>}
+            </Button>
+          </Link>
           
           <Button 
             variant="outline" 
