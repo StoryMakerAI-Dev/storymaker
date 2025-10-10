@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { characters, setting, theme, ageGroup, pronouns, wordCount } = await req.json();
+    const { characters, setting, theme, ageGroup, pronouns, wordCount, existingStory, refinementInstruction } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -21,7 +21,23 @@ serve(async (req) => {
     // Build the story generation prompt based on parameters
     const targetWords = wordCount || (ageGroup === 'children' ? 300 : ageGroup === 'teens' ? 500 : 700);
     
-    const systemPrompt = `You are a creative story writer. Generate engaging, well-structured stories based on the provided parameters. 
+    let systemPrompt: string;
+    let userPrompt: string;
+
+    if (refinementInstruction && existingStory) {
+      // Refinement mode
+      systemPrompt = `You are a creative story editor. Refine existing stories based on specific instructions while maintaining the original story's essence.`;
+      userPrompt = `Here is an existing story:
+
+${existingStory}
+
+Please refine this story with the following instruction: ${refinementInstruction}
+
+Maintain approximately ${targetWords} words and keep it age-appropriate for ${ageGroup}.
+Provide the refined story with its title on the first line, prefixed with "TITLE: "`;
+    } else {
+      // New story generation mode
+      systemPrompt = `You are a creative story writer. Generate engaging, well-structured stories based on the provided parameters. 
 - Keep the story around ${targetWords} words
 - Use proper paragraph breaks for readability
 - Make the story age-appropriate for ${ageGroup}
@@ -29,13 +45,14 @@ serve(async (req) => {
 - Create a complete story with beginning, middle, and end
 - Use ${pronouns} pronouns when referring to the main character(s)`;
 
-    const userPrompt = `Write a ${ageGroup} story with these details:
+      userPrompt = `Write a ${ageGroup} story with these details:
 Characters: ${characters || 'Create interesting characters'}
 Setting: ${setting || 'Create an interesting setting'}
 Theme: ${theme || 'Create an engaging adventure'}
 Target length: approximately ${targetWords} words
 
 Also provide a creative title for this story (on the first line, prefixed with "TITLE: ")`;
+    }
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

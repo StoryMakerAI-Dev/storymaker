@@ -7,17 +7,19 @@ import { useUser } from '@clerk/clerk-react';
 import { StoryParams, initialStoryParams, SavedStory } from '@/types/story';
 import { validateInputs } from '@/utils/storyUtils';
 import { supabase } from '@/integrations/supabase/client';
+import { saveStory } from '@/services/supabase/storyService';
 
 import StoryForm from './story/StoryForm';
 import StoryActions from './story/StoryActions';
 import ClerkAuthPanel from './auth/ClerkAuthPanel';
 
 interface StoryGeneratorProps {
-  onStoryGenerated: (story: string, title: string) => void;
+  onStoryGenerated: (story: string, title: string, imageUrl?: string, storyId?: string) => void;
   isGenerating: boolean;
   setIsGenerating: (value: boolean) => void;
   storyTitle: string;
   storyContent: string;
+  currentStoryId?: string;
 }
 
 const StoryGenerator: React.FC<StoryGeneratorProps> = ({ 
@@ -25,7 +27,8 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   isGenerating,
   setIsGenerating,
   storyTitle,
-  storyContent
+  storyContent,
+  currentStoryId
 }) => {
   const { isLoaded, isSignedIn, user } = useUser();
   const [storyParams, setStoryParams] = useState<StoryParams>(initialStoryParams);
@@ -93,7 +96,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     generateStory(randomParams);
   };
 
-  const generateStory = async (paramsToUse: StoryParams = storyParams) => {
+  const generateStory = async (paramsToUse: StoryParams = storyParams, refinementInstruction?: string, parentId?: string) => {
     if (!validateInputs(paramsToUse)) {
       return;
     }
@@ -101,28 +104,60 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     setIsGenerating(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('generate-story', {
+      // Generate story text
+      const { data: storyData, error: storyError } = await supabase.functions.invoke('generate-story', {
         body: {
           characters: paramsToUse.characters,
           setting: paramsToUse.setting,
           theme: paramsToUse.theme,
           ageGroup: paramsToUse.ageGroup,
           pronouns: paramsToUse.pronouns,
-          wordCount: paramsToUse.wordCount
+          wordCount: paramsToUse.wordCount,
+          existingStory: refinementInstruction ? storyContent : undefined,
+          refinementInstruction
         }
       });
 
-      if (error) throw error;
-      
-      if (data?.error) {
-        throw new Error(data.error);
+      if (storyError) throw storyError;
+      if (storyData?.error) throw new Error(storyData.error);
+
+      // Generate cover image
+      const { data: imageData, error: imageError } = await supabase.functions.invoke('generate-story-image', {
+        body: {
+          title: storyData.title,
+          characters: paramsToUse.characters,
+          setting: paramsToUse.setting,
+          ageGroup: paramsToUse.ageGroup
+        }
+      });
+
+      const coverImageUrl = imageData?.imageUrl;
+
+      // Save to database if user is logged in
+      let savedStoryId: string | undefined;
+      if (user) {
+        const userId = user.id;
+        const { data: savedData, error: saveError } = await saveStory(
+          userId,
+          storyData.title,
+          storyData.story,
+          paramsToUse,
+          coverImageUrl,
+          parentId || currentStoryId
+        );
+
+        if (!saveError && savedData) {
+          savedStoryId = savedData.id;
+        }
       }
 
-      onStoryGenerated(data.story, data.title);
+      onStoryGenerated(storyData.story, storyData.title, coverImageUrl, savedStoryId);
       
       toast({
-        title: "Story created!",
-        description: "Your AI-powered story has been generated.",
+        title: refinementInstruction ? "Story refined!" : "Story created!",
+        description: refinementInstruction 
+          ? "Your story has been refined with AI."
+          : "Your AI-powered story has been generated with a custom cover image.",
       });
     } catch (error) {
       console.error("Error generating story:", error);
@@ -134,6 +169,18 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handleRefine = (instruction: string) => {
+    if (!storyContent || !storyTitle) {
+      toast({
+        title: "No story to refine",
+        description: "Generate a story first before refining it.",
+        variant: "destructive",
+      });
+      return;
+    }
+    generateStory(storyParams, instruction, currentStoryId);
   };
 
   const username = user?.username || user?.firstName || '';
@@ -161,6 +208,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
         isGenerating={isGenerating}
         onGenerate={() => generateStory()}
         onRandomize={generateRandomStory}
+        onRefine={handleRefine}
         storyTitle={storyTitle}
         storyContent={storyContent}
         storyParams={storyParams}

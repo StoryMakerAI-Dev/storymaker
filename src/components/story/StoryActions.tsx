@@ -10,11 +10,14 @@ import RandomizeButton from './buttons/RandomizeButton';
 import SaveButton from './buttons/SaveButton';
 import PublishButton from './buttons/PublishButton';
 import ShareDropdown from './buttons/ShareDropdown';
+import RefineButton from './buttons/RefineButton';
+import ExportButton from './buttons/ExportButton';
 
 interface StoryActionsProps {
   isGenerating: boolean;
   onGenerate: () => void;
   onRandomize: () => void;
+  onRefine: (instruction: string) => void;
   storyTitle?: string;
   storyContent?: string;
   storyParams?: StoryParams;
@@ -24,6 +27,7 @@ const StoryActions: React.FC<StoryActionsProps> = ({
   isGenerating,
   onGenerate,
   onRandomize,
+  onRefine,
   storyTitle = "",
   storyContent = "",
   storyParams
@@ -53,6 +57,18 @@ const StoryActions: React.FC<StoryActionsProps> = ({
           isGenerating={isGenerating}
           onRandomize={onRandomize}
         />
+        
+        {isShareable && (
+          <>
+            <RefineButton onRefine={onRefine} disabled={isGenerating} />
+            
+            <ExportButton 
+              title={storyTitle}
+              content={storyContent}
+              disabled={isGenerating}
+            />
+          </>
+        )}
         
         <SaveButton
           isShareable={isShareable}

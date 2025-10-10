@@ -9,10 +9,11 @@ import { countWords } from '@/utils/storyUtils';
 interface StoryDisplayProps {
   title: string;
   content: string;
+  coverImageUrl?: string;
   onEdit?: () => void;
 }
 
-const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, onEdit }) => {
+const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, coverImageUrl, onEdit }) => {
   const { toast } = useToast();
   const storyRef = useRef<HTMLDivElement>(null);
   const [bookMode, setBookMode] = useState<boolean>(false);
@@ -110,6 +111,16 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, onEdit }) =
   return (
     <div className="w-full max-w-3xl mx-auto animate-fade-in">
       <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        {coverImageUrl && (
+          <div className="w-full">
+            <img 
+              src={coverImageUrl} 
+              alt={`Cover for ${title}`}
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        )}
+        
         <div className="bg-gradient-to-r from-storyforge-blue to-storyforge-purple p-6 text-white">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2 mb-2">

@@ -14,6 +14,8 @@ const Index = () => {
   const { isSignedIn } = useAuth();
   const [storyContent, setStoryContent] = useState<string>('');
   const [storyTitle, setStoryTitle] = useState<string>('');
+  const [coverImageUrl, setCoverImageUrl] = useState<string>();
+  const [currentStoryId, setCurrentStoryId] = useState<string>();
   const [isGenerating, setIsGenerating] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -72,9 +74,11 @@ const Index = () => {
     }
   }, [isSignedIn, storyContent, storyTitle]);
 
-  const handleStoryGenerated = (story: string, title: string) => {
+  const handleStoryGenerated = (story: string, title: string, imageUrl?: string, storyId?: string) => {
     setStoryContent(story);
     setStoryTitle(title);
+    setCoverImageUrl(imageUrl);
+    setCurrentStoryId(storyId);
     window.scrollTo({ 
       top: document.body.scrollHeight, 
       behavior: 'smooth' 
@@ -129,6 +133,7 @@ const Index = () => {
             setIsGenerating={setIsGenerating}
             storyTitle={storyTitle}
             storyContent={storyContent}
+            currentStoryId={currentStoryId}
           />
         </section>
         
@@ -137,6 +142,7 @@ const Index = () => {
             <StoryDisplay 
               title={storyTitle} 
               content={storyContent}
+              coverImageUrl={coverImageUrl}
               onEdit={handleEditStory}
             />
           </section>
