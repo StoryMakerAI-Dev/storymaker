@@ -63,15 +63,12 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// StoryForge Canvas theme colors
 				storyforge: {
-					blue: '#3B82F6',
-					purple: '#8B5CF6',
-					yellow: '#FBBF24',
-					pink: '#EC4899',
-					teal: '#14B8A6',
-					background: '#F8FAFC',
-					text: '#1E293B'
+					blue: 'hsl(var(--storyforge-blue))',
+					purple: 'hsl(var(--storyforge-purple))',
+					yellow: 'hsl(var(--storyforge-yellow))',
+					accent: 'hsl(var(--storyforge-accent))',
+					background: 'hsl(var(--storyforge-background))',
 				}
 			},
 			borderRadius: {
@@ -131,8 +128,9 @@ export default {
 				'pulse-slow': 'pulse-slow 4s ease-in-out infinite'
 			},
 			fontFamily: {
-				sans: ['Inter var', 'sans-serif'],
-				display: ['Quicksand', 'sans-serif']
+				sans: ['Inter', 'sans-serif'],
+				display: ['Inter', 'sans-serif'],
+				story: ['Crimson Pro', 'serif']
 			},
 			typography: {
 				DEFAULT: {

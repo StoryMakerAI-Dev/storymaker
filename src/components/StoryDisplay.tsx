@@ -110,36 +110,39 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, coverImageU
 
   return (
     <div className="w-full max-w-3xl mx-auto animate-fade-in">
-      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden story-card-hover">
         {coverImageUrl && (
-          <div className="w-full">
+          <div className="w-full relative overflow-hidden">
             <img 
               src={coverImageUrl} 
               alt={`Cover for ${title}`}
-              className="w-full h-auto object-cover"
+              className="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           </div>
         )}
         
-        <div className="bg-gradient-to-r from-storyforge-blue to-storyforge-purple p-6 text-white">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2 mb-2">
-              <Book className="h-5 w-5" />
-              <h3 className="text-sm font-medium uppercase tracking-wider opacity-90">Your Unique Story</h3>
+        <div className="bg-gradient-to-r from-storyforge-blue via-storyforge-purple to-storyforge-accent p-8 text-white relative overflow-hidden">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYgMi42ODYgNiA2cy0yLjY4NiA2LTYgNi02LTIuNjg2LTYtNiAyLjY4Ni02IDYtNiIgc3Ryb2tlPSIjZmZmIiBzdHJva2Utb3BhY2l0eT0iLjEiLz48L2c+PC9zdmc+')] opacity-30" />
+          
+          <div className="relative flex justify-between items-center">
+            <div className="flex items-center gap-3 mb-2">
+              <Book className="h-6 w-6" />
+              <h3 className="text-sm font-semibold uppercase tracking-widest opacity-90">Your Unique Story</h3>
             </div>
-            <div className="text-sm font-medium bg-white/20 rounded-full px-3 py-1">
+            <div className="text-sm font-bold bg-white/25 backdrop-blur-sm rounded-full px-4 py-1.5 shadow-lg">
               {wordCount} words
             </div>
           </div>
-          <h2 className="text-3xl font-display font-bold">{title}</h2>
+          <h2 className="text-4xl md:text-5xl font-display font-black leading-tight relative">{title}</h2>
         </div>
         
         <div 
           ref={storyRef}
-          className="p-8 story-container"
+          className="p-10 md:p-12 story-container bg-gradient-to-b from-white to-gray-50/50"
         >
           {paragraphs.map((paragraph, index) => (
-            <p key={index} className="story-text mb-6 leading-relaxed">
+            <p key={index} className="font-story text-lg md:text-xl mb-8 leading-loose text-gray-800 first-letter:text-5xl first-letter:font-bold first-letter:text-storyforge-purple first-letter:mr-1 first-letter:float-left">
               {paragraph}
             </p>
           ))}

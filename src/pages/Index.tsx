@@ -104,24 +104,49 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-storyforge-background to-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-storyforge-background via-white to-purple-50/30">
       <Header />
       
-      <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
-        <section className="text-center mb-12 max-w-3xl mx-auto relative">
-          <div className="absolute right-0 top-0">
+      <main className="flex-grow container max-w-6xl mx-auto px-4 py-12">
+        <section className="text-center mb-16 max-w-4xl mx-auto relative">
+          <div className="absolute right-0 top-0 z-10">
             <HelpGuide />
           </div>
-          <h1 className="text-4xl md:text-5xl font-display font-bold mb-4 gradient-text">
-            AI-Powered Story Creator
-          </h1>
-          <p className="text-xl text-gray-600 mb-6">
-            Generate unique stories for any age group with our intelligent storytelling engine
-          </p>
-          <div className="flex justify-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/50 rounded-full text-gray-600 text-sm border border-gray-100 shadow-sm">
-              <Sparkles className="h-4 w-4 text-storyforge-yellow" />
-              <span>Endless possibilities await your imagination</span>
+          
+          {/* Decorative elements */}
+          <div className="absolute -top-20 -left-20 w-72 h-72 bg-gradient-to-br from-storyforge-purple/20 to-storyforge-blue/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute -bottom-20 -right-20 w-96 h-96 bg-gradient-to-br from-storyforge-yellow/20 to-storyforge-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+          
+          <div className="relative">
+            <div className="inline-block mb-4 px-4 py-1.5 bg-gradient-to-r from-storyforge-blue/10 to-storyforge-purple/10 rounded-full border border-storyforge-purple/20">
+              <span className="text-sm font-semibold bg-gradient-to-r from-storyforge-blue to-storyforge-purple bg-clip-text text-transparent">
+                ✨ Powered by Advanced AI
+              </span>
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-6 gradient-text leading-tight">
+              Create Magic with
+              <br />
+              AI Story Generation
+            </h1>
+            
+            <p className="text-xl md:text-2xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+              Transform your ideas into captivating stories with AI-generated text and stunning cover art
+            </p>
+            
+            <div className="flex flex-wrap justify-center gap-4 mb-8">
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 glass-card rounded-full text-gray-700 text-sm font-medium shadow-lg hover-scale">
+                <Sparkles className="h-4 w-4 text-storyforge-yellow" />
+                <span>Custom Illustrations</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 glass-card rounded-full text-gray-700 text-sm font-medium shadow-lg hover-scale">
+                <Sparkles className="h-4 w-4 text-storyforge-purple" />
+                <span>Version History</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-5 py-2.5 glass-card rounded-full text-gray-700 text-sm font-medium shadow-lg hover-scale">
+                <Sparkles className="h-4 w-4 text-storyforge-blue" />
+                <span>Story Refinement</span>
+              </div>
             </div>
           </div>
         </section>

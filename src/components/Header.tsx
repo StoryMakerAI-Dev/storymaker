@@ -29,34 +29,34 @@ const Header = () => {
   };
   
   return (
-    <header className="w-full py-4 px-4 md:px-6 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
-      <div className="container max-w-6xl mx-auto flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2">
-          <BookOpen className="h-6 w-6 md:h-8 md:w-8 text-storyforge-purple" />
-          <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-display font-bold`}>
-            <span className="text-storyforge-blue">Story</span>
-            <span className="text-storyforge-purple">Maker</span>
-            {!isMobile && <span className="text-gray-700"> AI</span>}
-            {!isMobile && <span className="ml-2 text-sm bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded">Demo</span>}
+    <header className="w-full border-b glass-card sticky top-0 z-50 shadow-lg">
+      <div className="container max-w-6xl mx-auto flex justify-between items-center px-4 md:px-6 py-5">
+        <Link to="/" className="flex items-center gap-3 hover-scale group">
+          <div className="p-2.5 bg-gradient-to-br from-storyforge-blue via-storyforge-purple to-storyforge-accent rounded-xl shadow-lg group-hover:shadow-xl transition-all">
+            <BookOpen className="h-6 w-6 text-white" />
+          </div>
+          <h1 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-display font-extrabold`}>
+            <span className="gradient-text">StoryMaker AI</span>
+            {!isMobile && <span className="ml-2 text-xs bg-gradient-to-r from-storyforge-yellow/20 to-storyforge-accent/20 text-gray-700 px-2.5 py-1 rounded-full border border-storyforge-accent/30 font-semibold">Beta</span>}
           </h1>
         </Link>
         
         <div className="flex items-center gap-3">
           {!isMobile && (
-            <div className="flex items-center gap-2 mr-4">
+            <div className="flex items-center gap-2 mr-4 px-4 py-2 glass-card rounded-full">
               <Sparkles className="h-5 w-5 text-storyforge-yellow animate-pulse-slow" />
-              <span className="font-medium text-gray-600">AI-Powered Stories</span>
+              <span className="font-semibold text-gray-700 text-sm">AI-Powered Stories</span>
             </div>
           )}
           
           <Button 
             variant="outline" 
             size="sm"
-            className="flex items-center gap-1"
+            className="flex items-center gap-2 hover-scale"
             onClick={handleLogout}
           >
             <LogOut className="h-4 w-4" />
-            {!isMobile && "Logout"}
+            {!isMobile && <span className="font-medium">Logout</span>}
           </Button>
         </div>
       </div>

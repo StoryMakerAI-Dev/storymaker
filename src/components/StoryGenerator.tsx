@@ -186,11 +186,13 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
   const username = user?.username || user?.firstName || '';
 
   return (
-    <div className="w-full max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-md border border-gray-100 animate-fade-in">
-      <div className="mb-5 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <BookText className="h-6 w-6 text-storyforge-blue" />
-          <h2 className="text-2xl font-display font-bold text-gray-800">Story Generator</h2>
+    <div className="w-full max-w-3xl mx-auto p-8 glass-card rounded-2xl shadow-xl story-card-hover animate-fade-in">
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-storyforge-blue to-storyforge-purple rounded-xl">
+            <BookText className="h-6 w-6 text-white" />
+          </div>
+          <h2 className="text-3xl font-display font-bold text-gray-800">Story Generator</h2>
         </div>
         
         <div className="flex items-center gap-4">
