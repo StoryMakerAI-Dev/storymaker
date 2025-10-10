@@ -14,7 +14,53 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      stories: {
+        Row: {
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          id: string
+          params: Json
+          parent_story_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          content: string
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          params: Json
+          parent_story_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          id?: string
+          params?: Json
+          parent_story_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stories_parent_story_id_fkey"
+            columns: ["parent_story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
