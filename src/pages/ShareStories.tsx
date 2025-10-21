@@ -189,25 +189,17 @@ const ShareStories = () => {
                 <div className="text-center max-w-2xl mx-auto">
                   <h2 className="text-3xl font-bold mb-4 gradient-text">Coming Soon!</h2>
                   <p className="text-lg text-gray-600 mb-8">
-                    Browse Community Stories and more exciting features are on their way
+                    Browse Community Stories and exciting new features are on their way
                   </p>
                   
-                  <div className="space-y-4 text-left bg-gradient-to-r from-storyforge-blue/5 to-storyforge-purple/5 p-6 rounded-lg">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-3">In the meantime, try:</h3>
-                    <ul className="space-y-3">
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-storyforge-blue rounded-full"></div>
-                        <span className="text-gray-700"><span className="font-semibold">TextMaker AI</span> - Create amazing stories with AI</span>
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <div className="w-2 h-2 bg-storyforge-purple rounded-full"></div>
-                        <span className="text-gray-700"><span className="font-semibold">Picture AI</span> - Generate stunning story illustrations</span>
-                      </li>
-                    </ul>
+                  <div className="bg-gradient-to-r from-storyforge-blue/5 to-storyforge-purple/5 p-8 rounded-lg">
+                    <p className="text-gray-700 text-base">
+                      We're working hard to bring you an amazing community experience where you can share your stories, discover creations from other users, and connect with fellow storytellers.
+                    </p>
                   </div>
                   
                   <p className="text-sm text-gray-500 mt-6">
-                    Community features including story sharing, browsing, and more will be available soon!
+                    Stay tuned for updates!
                   </p>
                 </div>
               </div>
