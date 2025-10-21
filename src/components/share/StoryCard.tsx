@@ -17,11 +17,11 @@ const StoryCard: React.FC<StoryCardProps> = ({ story, onStoryAction }) => {
         <div className="flex justify-between items-start">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide opacity-80">
-              {story.params.genre} • {story.params.ageGroup}
+              {story.params?.genre || 'Story'} • {story.params?.ageGroup || 'All Ages'}
             </p>
             <CardTitle className="mt-1">{story.title}</CardTitle>
             <CardDescription className="text-white/80 mt-1">
-              by {story.author}
+              by {story.author || 'Anonymous'}
             </CardDescription>
           </div>
         </div>

@@ -12,13 +12,19 @@ interface StoryTableProps {
 }
 
 const StoryTable: React.FC<StoryTableProps> = ({ stories, onStoryAction }) => {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric' 
-    }).format(date);
+  const formatDate = (dateString: string | undefined) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'N/A';
+      return new Intl.DateTimeFormat('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        year: 'numeric' 
+      }).format(date);
+    } catch (error) {
+      return 'N/A';
+    }
   };
 
   const handleTitleClick = (story: SharedStory) => {
@@ -53,9 +59,9 @@ const StoryTable: React.FC<StoryTableProps> = ({ stories, onStoryAction }) => {
                 </p>
               </div>
             </TableCell>
-            <TableCell>{story.author}</TableCell>
+            <TableCell>{story.author || 'Anonymous'}</TableCell>
             <TableCell>{formatDate(story.createdAt)}</TableCell>
-            <TableCell>{story.params.genre}</TableCell>
+            <TableCell>{story.params?.genre || 'N/A'}</TableCell>
             <TableCell>
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 <div className="flex items-center">
