@@ -4,6 +4,7 @@ import { toast } from '@/hooks/use-toast';
 import { streamChat } from '@/utils/chatStream';
 import ChatMessage from '@/components/chat/ChatMessage';
 import ChatInput from '@/components/chat/ChatInput';
+import ModelSelector from '@/components/chat/ModelSelector';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 
@@ -17,6 +18,7 @@ const ChatAssistant: React.FC = () => {
     }
   ]);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('google/gemini-2.5-flash');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -49,6 +51,7 @@ const ChatAssistant: React.FC = () => {
     try {
       await streamChat({
         messages: [...messages, userMsg],
+        model: selectedModel,
         onDelta: (chunk) => upsertAssistant(chunk),
         onDone: () => setIsLoading(false),
         onError: (error) => {
@@ -85,7 +88,15 @@ const ChatAssistant: React.FC = () => {
               </div>
               <h1 className="text-3xl font-display font-bold gradient-text">AI Writing Assistant</h1>
             </div>
-            <p className="text-gray-600">Brainstorm ideas, get writing tips, and overcome writer's block</p>
+            <p className="text-gray-600 mb-4">Brainstorm ideas, get writing tips, and overcome writer's block</p>
+            
+            <div className="flex justify-center">
+              <ModelSelector 
+                selectedModel={selectedModel}
+                onModelChange={setSelectedModel}
+                disabled={isLoading}
+              />
+            </div>
           </div>
 
           <div className="glass-card rounded-2xl shadow-xl p-6 flex flex-col" style={{ height: 'calc(100vh - 300px)' }}>

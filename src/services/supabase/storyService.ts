@@ -22,6 +22,10 @@ export const saveStory = async (
   parentStoryId?: string
 ): Promise<{ data: SavedStoryData | null; error: Error | null }> => {
   try {
+    // Add watermark to content
+    const watermark = '\n\n---\nCreated with StoryMaker AI';
+    const contentWithWatermark = content + watermark;
+    
     // Get version number if this is a new version of an existing story
     let version = 1;
     if (parentStoryId) {
@@ -41,7 +45,7 @@ export const saveStory = async (
       .insert({
         user_id: userId,
         title,
-        content,
+        content: contentWithWatermark,
         cover_image_url: coverImageUrl || null,
         params,
         version,
