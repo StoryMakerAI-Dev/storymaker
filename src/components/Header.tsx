@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BookOpen, Sparkles, LogOut } from 'lucide-react';
+import { BookOpen, Sparkles, LogOut, MessageCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,17 @@ const Header = () => {
             </div>
           )}
           
+          <Link to="/chat-assistant">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="flex items-center gap-2 hover-scale"
+            >
+              <MessageCircle className="h-4 w-4" />
+              {!isMobile && <span className="font-medium">AI Chat</span>}
+            </Button>
+          </Link>
+          
           <Link to="/share-stories">
             <Button 
               variant="outline" 
@@ -60,7 +71,7 @@ const Header = () => {
             </Button>
           </Link>
           
-          <Button 
+          <Button
             variant="outline" 
             size="sm"
             className="flex items-center gap-2 hover-scale"

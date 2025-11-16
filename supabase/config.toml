@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.generate-story-image]
 verify_jwt = false
+
+[functions.chat-assistant]
+verify_jwt = false
