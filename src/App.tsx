@@ -9,6 +9,7 @@ import NotFound from "./pages/NotFound";
 import SignInPage from "./pages/SignInPage";
 import SignUpPage from "./pages/SignUpPage";
 import ShareStories from "./pages/ShareStories";
+import ChatAssistant from "./pages/ChatAssistant";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/sign-in/*" element={<SignInPage />} />
           <Route path="/sign-up/*" element={<SignUpPage />} />
           <Route path="/share-stories" element={<ShareStories />} />
+          <Route path="/chat-assistant" element={<ChatAssistant />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
