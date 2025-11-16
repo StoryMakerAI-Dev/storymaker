@@ -1,9 +1,10 @@
 
 export const generateStoryUrl = (storyTitle: string, storyContent: string) => {
   const baseUrl = window.location.origin;
+  const watermark = '\n\n---\nCreated with StoryMaker AI';
   const storyData = {
     title: storyTitle,
-    content: storyContent,
+    content: storyContent + watermark,
     shared: true
   };
   const encodedData = encodeURIComponent(JSON.stringify(storyData));

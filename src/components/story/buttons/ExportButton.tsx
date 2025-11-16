@@ -16,7 +16,8 @@ interface ExportButtonProps {
 
 const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled }) => {
   const exportAsText = () => {
-    const blob = new Blob([`${title}\n\n${content}`], { type: 'text/plain' });
+    const watermark = '\n\n---\nCreated with StoryMaker AI\n';
+    const blob = new Blob([`${title}\n\n${content}${watermark}`], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -51,11 +52,21 @@ const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled })
       margin: 1em 0; 
       text-align: justify;
     }
+    .watermark {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #ddd;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <h1>${title}</h1>
   ${content.split('\n\n').map(para => `<p>${para}</p>`).join('\n')}
+  <div class="watermark">Created with StoryMaker AI</div>
 </body>
 </html>`;
     
@@ -71,7 +82,8 @@ const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled })
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(`${title}\n\n${content}`);
+    const watermark = '\n\n---\nCreated with StoryMaker AI\n';
+    navigator.clipboard.writeText(`${title}\n\n${content}${watermark}`);
   };
 
   return (
