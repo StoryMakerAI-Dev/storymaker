@@ -12,6 +12,7 @@ export type StoryParams = {
   famousCharacter?: string;
   wordCount?: number;
   font?: string;
+  modelUsed?: string;
 };
 
 export const initialStoryParams: StoryParams = {

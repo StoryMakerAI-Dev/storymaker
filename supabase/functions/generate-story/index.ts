@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { characters, setting, theme, ageGroup, pronouns, wordCount, existingStory, refinementInstruction } = await req.json();
+    const { characters, setting, theme, ageGroup, pronouns, wordCount, existingStory, refinementInstruction, model } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
@@ -82,7 +82,7 @@ Also provide a creative title for this story (on the first line, prefixed with "
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: model || "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt }

@@ -49,7 +49,8 @@ export const saveStory = async (
         cover_image_url: coverImageUrl || null,
         params,
         version,
-        parent_story_id: parentStoryId || null
+        parent_story_id: parentStoryId || null,
+        model_used: params.modelUsed || null
       })
       .select()
       .single();
