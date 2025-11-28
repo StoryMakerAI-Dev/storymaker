@@ -14,12 +14,82 @@ export type Database = {
   }
   public: {
     Tables: {
+      character_library: {
+        Row: {
+          backstory: string | null
+          created_at: string
+          description: string
+          id: string
+          name: string
+          traits: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          backstory?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          name: string
+          traits?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          backstory?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          traits?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      collection_stories: {
+        Row: {
+          added_at: string
+          collection_id: string
+          id: string
+          story_id: string
+        }
+        Insert: {
+          added_at?: string
+          collection_id: string
+          id?: string
+          story_id: string
+        }
+        Update: {
+          added_at?: string
+          collection_id?: string
+          id?: string
+          story_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collection_stories_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "story_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collection_stories_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stories: {
         Row: {
           content: string
           cover_image_url: string | null
           created_at: string
           id: string
+          model_used: string | null
           params: Json
           parent_story_id: string | null
           title: string
@@ -32,6 +102,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           id?: string
+          model_used?: string | null
           params: Json
           parent_story_id?: string | null
           title: string
@@ -44,6 +115,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           id?: string
+          model_used?: string | null
           params?: Json
           parent_story_id?: string | null
           title?: string
@@ -60,6 +132,102 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      story_collections: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      story_templates: {
+        Row: {
+          age_group: string
+          created_at: string
+          description: string
+          genre: string
+          id: string
+          name: string
+          starter_text: string
+        }
+        Insert: {
+          age_group: string
+          created_at?: string
+          description: string
+          genre: string
+          id?: string
+          name: string
+          starter_text: string
+        }
+        Update: {
+          age_group?: string
+          created_at?: string
+          description?: string
+          genre?: string
+          id?: string
+          name?: string
+          starter_text?: string
+        }
+        Relationships: []
+      }
+      writing_goals: {
+        Row: {
+          created_at: string
+          current_count: number
+          goal_type: string
+          id: string
+          period_end: string
+          period_start: string
+          target_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_count?: number
+          goal_type: string
+          id?: string
+          period_end: string
+          period_start?: string
+          target_count: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_count?: number
+          goal_type?: string
+          id?: string
+          period_end?: string
+          period_start?: string
+          target_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
