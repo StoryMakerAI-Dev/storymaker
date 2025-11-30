@@ -7,6 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { jsPDF } from 'jspdf';
+import { Document, Paragraph, Packer, TextRun, HeadingLevel } from 'docx';
+import { saveAs } from 'file-saver';
 
 interface ExportButtonProps {
   title: string;
@@ -81,6 +84,70 @@ const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled })
     URL.revokeObjectURL(url);
   };
 
+  const exportAsPDF = () => {
+    const doc = new jsPDF();
+    const watermark = '\n\n---\nCreated with StoryMaker AI';
+    
+    // Set title
+    doc.setFontSize(20);
+    doc.text(title, 20, 20);
+    
+    // Set content
+    doc.setFontSize(12);
+    const splitContent = doc.splitTextToSize(content + watermark, 170);
+    doc.text(splitContent, 20, 40);
+    
+    doc.save(`${title.replace(/[^a-z0-9]/gi, '_')}.pdf`);
+  };
+
+  const exportAsDOCX = async () => {
+    const watermark = '\n\n---\nCreated with StoryMaker AI';
+    
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            text: title,
+            heading: HeadingLevel.HEADING_1,
+          }),
+          ...content.split('\n\n').map(para => 
+            new Paragraph({
+              children: [new TextRun(para)],
+              spacing: { after: 200 },
+            })
+          ),
+          new Paragraph({
+            children: [
+              new TextRun({
+                text: watermark,
+                italics: true,
+              }),
+            ],
+          }),
+        ],
+      }],
+    });
+
+    const blob = await Packer.toBlob(doc);
+    saveAs(blob, `${title.replace(/[^a-z0-9]/gi, '_')}.docx`);
+  };
+
+  const exportAsMarkdown = () => {
+    const watermark = '\n\n---\n*Created with StoryMaker AI*';
+    const markdown = `# ${title}\n\n${content}${watermark}`;
+    
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.replace(/[^a-z0-9]/gi, '_')}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const copyToClipboard = () => {
     const watermark = '\n\n---\nCreated with StoryMaker AI\n';
     navigator.clipboard.writeText(`${title}\n\n${content}${watermark}`);
@@ -105,6 +172,15 @@ const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled })
         </DropdownMenuItem>
         <DropdownMenuItem onClick={exportAsHTML}>
           Export as HTML
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={exportAsPDF}>
+          Export as PDF
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={exportAsDOCX}>
+          Export as DOCX
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={exportAsMarkdown}>
+          Export as Markdown
         </DropdownMenuItem>
         <DropdownMenuItem onClick={copyToClipboard}>
           Copy to Clipboard
