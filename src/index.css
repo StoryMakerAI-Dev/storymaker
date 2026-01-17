@@ -100,7 +100,7 @@
   }
 
   body {
-    @apply bg-storyforge-background text-foreground font-sans;
+    @apply bg-background text-foreground font-sans;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -108,21 +108,22 @@
   }
 }
 
+/* Story text styles */
 .story-text {
   font-size: 1.1rem;
   line-height: 1.8;
 }
 
 .story-container {
-  background-color: white;
-  background-image: radial-gradient(#8B5CF6 0.5px, transparent 0.5px), radial-gradient(#3B82F6 0.5px, white 0.5px);
+  background-color: hsl(var(--background));
+  background-image: 
+    radial-gradient(hsl(var(--primary) / 0.03) 1px, transparent 1px);
   background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
-  background-attachment: fixed;
 }
 
+/* Animated gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, hsl(var(--storyforge-blue)) 0%, hsl(var(--storyforge-purple)) 50%, hsl(var(--storyforge-accent)) 100%);
+  background: linear-gradient(135deg, hsl(var(--secondary)) 0%, hsl(var(--primary)) 50%, hsl(var(--accent)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -135,27 +136,32 @@
   50% { background-position: 100% 50%; }
 }
 
+/* Glass card effect */
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
+  background: hsl(var(--background) / 0.8);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid hsl(var(--border));
 }
 
+/* Story card hover effect */
 .story-card-hover {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .story-card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 60px -15px rgba(139, 92, 246, 0.3), 0 10px 40px -15px rgba(59, 130, 246, 0.2);
+  box-shadow: 
+    0 20px 60px -15px hsl(var(--primary) / 0.2), 
+    0 10px 40px -15px hsl(var(--secondary) / 0.15);
 }
 
+/* Hover scale effect */
 .hover-scale {
   transition: transform 0.2s ease;
 }
 
 .hover-scale:hover {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 /* Book mode styles */
@@ -163,15 +169,37 @@
   font-family: 'Merriweather', serif;
 }
 
+/* Floating animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Slow pulse animation */
 @keyframes pulse-slow {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
 }
 
 .animate-pulse-slow {
   animation: pulse-slow 3s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* Better focus styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background;
 }

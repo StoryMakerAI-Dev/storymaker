@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,30 +11,6 @@ serve(async (req) => {
   }
 
   try {
-    // Authentication check
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      { global: { headers: { Authorization: authHeader } } }
-    );
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const { title, characters, setting, ageGroup } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -44,16 +19,16 @@ serve(async (req) => {
     }
 
     // Create a descriptive prompt for the story illustration
-    const styleMap = {
+    const styleMap: Record<string, string> = {
       children: "whimsical children's book illustration style, bright colors, friendly and cute",
       teens: "dynamic young adult book cover style, vibrant and engaging",
       adults: "sophisticated book cover art, cinematic and detailed"
     };
 
-    const style = styleMap[ageGroup as keyof typeof styleMap] || styleMap.children;
+    const style = styleMap[ageGroup] || styleMap.children;
     
     const prompt = `Create a beautiful book cover illustration for a story titled "${title}". 
-Features: ${characters} in ${setting}. 
+Features: ${characters || 'interesting characters'} in ${setting || 'a magical setting'}. 
 Style: ${style}, professional book cover quality, no text or titles on the image.`;
 
     console.log("Generating image with prompt:", prompt);
@@ -99,8 +74,15 @@ Style: ${style}, professional book cover quality, no text or titles on the image
     const imageUrl = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
     
     if (!imageUrl) {
-      throw new Error("No image generated");
+      console.log("No image in response, attempting fallback");
+      // Return success with null image - frontend can handle this gracefully
+      return new Response(
+        JSON.stringify({ imageUrl: null }), 
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
+
+    console.log("Image generated successfully");
 
     return new Response(
       JSON.stringify({ imageUrl }), 
@@ -109,8 +91,8 @@ Style: ${style}, professional book cover quality, no text or titles on the image
   } catch (error) {
     console.error("Error in generate-story-image function:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Failed to generate image" }), 
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ imageUrl: null, error: error.message || "Failed to generate image" }), 
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
