@@ -83,6 +83,104 @@ export type Database = {
           },
         ]
       }
+      export_archives: {
+        Row: {
+          created_at: string
+          expires_at: string
+          export_format: string
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          schedule_id: string | null
+          story_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          export_format: string
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          schedule_id?: string | null
+          story_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          export_format?: string
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          schedule_id?: string | null
+          story_count?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "export_archives_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "export_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      export_schedules: {
+        Row: {
+          cloud_provider: string | null
+          created_at: string
+          cron_expression: string
+          delivery_email: string | null
+          delivery_method: string
+          export_format: string
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          next_run_at: string | null
+          schedule_name: string
+          template_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cloud_provider?: string | null
+          created_at?: string
+          cron_expression: string
+          delivery_email?: string | null
+          delivery_method?: string
+          export_format?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_name: string
+          template_id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cloud_provider?: string | null
+          created_at?: string
+          cron_expression?: string
+          delivery_email?: string | null
+          delivery_method?: string
+          export_format?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_name?: string
+          template_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       stories: {
         Row: {
           content: string

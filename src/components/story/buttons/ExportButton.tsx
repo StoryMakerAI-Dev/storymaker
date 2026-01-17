@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, FileStack } from 'lucide-react';
+import { Download, Eye, FileStack, Calendar, Mail, Cloud } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +11,11 @@ import {
 import { exportStoryWithTemplate } from '@/utils/exportUtils';
 import PrintPreviewDialog from './PrintPreviewDialog';
 import BatchExportDialog from './BatchExportDialog';
+import EmailDeliveryDialog from './EmailDeliveryDialog';
+import ScheduledExportsDialog from './ScheduledExportsDialog';
+import CloudStorageDialog from './CloudStorageDialog';
 import { toast } from 'sonner';
+import { useUser } from '@clerk/clerk-react';
 
 interface ExportButtonProps {
   title: string;
@@ -20,8 +24,12 @@ interface ExportButtonProps {
 }
 
 const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled }) => {
+  const { user } = useUser();
   const [showPreview, setShowPreview] = useState(false);
   const [showBatchExport, setShowBatchExport] = useState(false);
+  const [showEmailDelivery, setShowEmailDelivery] = useState(false);
+  const [showScheduledExports, setShowScheduledExports] = useState(false);
+  const [showCloudStorage, setShowCloudStorage] = useState(false);
 
   const handleExportWithTemplate = async (format: 'pdf' | 'docx', templateId: string) => {
     try {
@@ -49,6 +57,8 @@ const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled })
     toast.success('Story copied to clipboard');
   };
 
+  const senderName = user?.firstName || user?.username || 'A StoryMaker User';
+
   return (
     <>
       <DropdownMenu>
@@ -71,6 +81,21 @@ const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled })
           <DropdownMenuItem onClick={() => setShowBatchExport(true)}>
             <FileStack className="h-4 w-4 mr-2" />
             Batch Export Stories
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowScheduledExports(true)}>
+            <Calendar className="h-4 w-4 mr-2" />
+            Scheduled Exports
+          </DropdownMenuItem>
+          
+          <DropdownMenuSeparator />
+          
+          <DropdownMenuItem onClick={() => setShowEmailDelivery(true)}>
+            <Mail className="h-4 w-4 mr-2" />
+            Send via Email
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setShowCloudStorage(true)}>
+            <Cloud className="h-4 w-4 mr-2" />
+            Save to Cloud
           </DropdownMenuItem>
           
           <DropdownMenuSeparator />
@@ -110,6 +135,26 @@ const ExportButton: React.FC<ExportButtonProps> = ({ title, content, disabled })
       <BatchExportDialog
         open={showBatchExport}
         onOpenChange={setShowBatchExport}
+      />
+
+      <EmailDeliveryDialog
+        open={showEmailDelivery}
+        onOpenChange={setShowEmailDelivery}
+        title={title}
+        content={content}
+        senderName={senderName}
+      />
+
+      <ScheduledExportsDialog
+        open={showScheduledExports}
+        onOpenChange={setShowScheduledExports}
+      />
+
+      <CloudStorageDialog
+        open={showCloudStorage}
+        onOpenChange={setShowCloudStorage}
+        title={title}
+        content={content}
       />
     </>
   );
