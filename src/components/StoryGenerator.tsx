@@ -104,6 +104,9 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     setIsGenerating(true);
     
     try {
+      // Get user ID for rate limiting
+      const userId = user?.id || 'anonymous';
+      
       // Generate story text
       const { data: storyData, error: storyError } = await supabase.functions.invoke('generate-story', {
         body: {
@@ -116,6 +119,9 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
           genre: paramsToUse.genre || 'fantasy',
           existingStory: refinementInstruction ? storyContent : undefined,
           refinementInstruction
+        },
+        headers: {
+          'x-user-id': userId
         }
       });
 
@@ -129,6 +135,9 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
           characters: paramsToUse.characters,
           setting: paramsToUse.setting,
           ageGroup: paramsToUse.ageGroup
+        },
+        headers: {
+          'x-user-id': userId
         }
       });
 

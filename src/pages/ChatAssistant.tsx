@@ -7,10 +7,12 @@ import ChatInput from '@/components/chat/ChatInput';
 import ModelSelector from '@/components/chat/ModelSelector';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useAuth } from '@clerk/clerk-react';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
 const ChatAssistant: React.FC = () => {
+  const { userId } = useAuth();
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
@@ -52,6 +54,7 @@ const ChatAssistant: React.FC = () => {
       await streamChat({
         messages: [...messages, userMsg],
         model: selectedModel,
+        userId: userId || undefined,
         onDelta: (chunk) => upsertAssistant(chunk),
         onDone: () => setIsLoading(false),
         onError: (error) => {

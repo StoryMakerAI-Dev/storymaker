@@ -3,12 +3,13 @@ type Message = { role: "user" | "assistant"; content: string };
 interface StreamChatParams {
   messages: Message[];
   model?: string;
+  userId?: string;
   onDelta: (deltaText: string) => void;
   onDone: () => void;
   onError?: (error: Error) => void;
 }
 
-export async function streamChat({ messages, model = "google/gemini-2.5-flash", onDelta, onDone, onError }: StreamChatParams) {
+export async function streamChat({ messages, model = "google/gemini-2.5-flash", userId, onDelta, onDone, onError }: StreamChatParams) {
   const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
 
   try {
@@ -17,6 +18,7 @@ export async function streamChat({ messages, model = "google/gemini-2.5-flash", 
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        "x-user-id": userId || "anonymous",
       },
       body: JSON.stringify({ messages, model }),
     });
