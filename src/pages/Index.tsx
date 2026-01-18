@@ -6,6 +6,7 @@ import StoryEditor from '@/components/story/StoryEditor';
 import HelpGuide from '@/components/HelpGuide';
 import Footer from '@/components/Footer';
 import UsageStats from '@/components/dashboard/UsageStats';
+import AIUsageDashboard from '@/components/dashboard/AIUsageDashboard';
 import WritingGoals from '@/components/dashboard/WritingGoals';
 import QuickActions from '@/components/dashboard/QuickActions';
 import RecentStories from '@/components/dashboard/RecentStories';
@@ -183,7 +184,7 @@ const Index = () => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
               <div className="lg:col-span-2 space-y-6">
                 <QuickActions />
-                <UsageStats />
+                <AIUsageDashboard />
               </div>
               <div className="space-y-6">
                 <WritingGoals />

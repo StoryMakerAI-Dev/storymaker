@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_usage_logs: {
+        Row: {
+          created_at: string
+          function_name: string
+          id: string
+          model_used: string | null
+          tokens_used: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          function_name: string
+          id?: string
+          model_used?: string | null
+          tokens_used?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          function_name?: string
+          id?: string
+          model_used?: string | null
+          tokens_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       character_library: {
         Row: {
           backstory: string | null
@@ -178,6 +205,30 @@ export type Database = {
           template_id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      rate_limits: {
+        Row: {
+          function_name: string
+          id: string
+          request_count: number
+          user_id: string
+          window_start: string
+        }
+        Insert: {
+          function_name: string
+          id?: string
+          request_count?: number
+          user_id: string
+          window_start?: string
+        }
+        Update: {
+          function_name?: string
+          id?: string
+          request_count?: number
+          user_id?: string
+          window_start?: string
         }
         Relationships: []
       }
