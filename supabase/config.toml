@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.send-story-email]
 verify_jwt = false
+
+[functions.send-usage-alert]
+verify_jwt = false
+
+[functions.admin-stats]
+verify_jwt = false

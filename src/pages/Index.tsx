@@ -13,6 +13,7 @@ import RecentStories from '@/components/dashboard/RecentStories';
 import TemplateSelector from '@/components/templates/TemplateSelector';
 import CharacterLibrary from '@/components/characters/CharacterLibrary';
 import CollectionManager from '@/components/collections/CollectionManager';
+import AdminPanel from '@/components/admin/AdminPanel';
 import { Sparkles, TrendingUp } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@clerk/clerk-react';
@@ -193,10 +194,11 @@ const Index = () => {
             </div>
 
             <Tabs defaultValue="templates" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsList className="grid w-full grid-cols-4 mb-6">
                 <TabsTrigger value="templates">Story Templates</TabsTrigger>
                 <TabsTrigger value="characters">Character Library</TabsTrigger>
                 <TabsTrigger value="collections">Collections</TabsTrigger>
+                <TabsTrigger value="admin">Admin</TabsTrigger>
               </TabsList>
               <TabsContent value="templates" className="animate-fade-in">
                 <TemplateSelector onSelectTemplate={handleTemplateSelect} />
@@ -206,6 +208,9 @@ const Index = () => {
               </TabsContent>
               <TabsContent value="collections" className="animate-fade-in">
                 <CollectionManager />
+              </TabsContent>
+              <TabsContent value="admin" className="animate-fade-in">
+                <AdminPanel />
               </TabsContent>
             </Tabs>
           </section>
