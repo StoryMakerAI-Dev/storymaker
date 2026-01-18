@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BookText } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useUser } from '@clerk/clerk-react';
@@ -8,10 +8,12 @@ import { StoryParams, initialStoryParams, SavedStory } from '@/types/story';
 import { validateInputs } from '@/utils/storyUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { saveStory } from '@/services/supabase/storyService';
+import { getUserPreferences, updatePreferredModel } from '@/services/supabase/preferencesService';
 
 import StoryForm from './story/StoryForm';
 import StoryActions from './story/StoryActions';
 import ClerkAuthPanel from './auth/ClerkAuthPanel';
+import AIModelSelector from './story/AIModelSelector';
 
 interface StoryGeneratorProps {
   onStoryGenerated: (story: string, title: string, imageUrl?: string, storyId?: string, font?: string) => void;
@@ -32,6 +34,27 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
 }) => {
   const { isLoaded, isSignedIn, user } = useUser();
   const [storyParams, setStoryParams] = useState<StoryParams>(initialStoryParams);
+  const [selectedAIModel, setSelectedAIModel] = useState<string>('google/gemini-2.5-flash');
+
+  // Load user's preferred AI model
+  useEffect(() => {
+    const loadPreferences = async () => {
+      if (user?.id) {
+        const prefs = await getUserPreferences(user.id);
+        if (prefs?.preferred_ai_model) {
+          setSelectedAIModel(prefs.preferred_ai_model);
+        }
+      }
+    };
+    loadPreferences();
+  }, [user?.id]);
+
+  const handleModelChange = async (model: string) => {
+    setSelectedAIModel(model);
+    if (user?.id) {
+      await updatePreferredModel(user.id, model);
+    }
+  };
   
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -107,7 +130,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
       // Get user ID for rate limiting
       const userId = user?.id || 'anonymous';
       
-      // Generate story text
+      // Generate story text with selected AI model
       const { data: storyData, error: storyError } = await supabase.functions.invoke('generate-story', {
         body: {
           characters: paramsToUse.characters,
@@ -117,6 +140,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
           pronouns: paramsToUse.pronouns,
           wordCount: paramsToUse.wordCount,
           genre: paramsToUse.genre || 'fantasy',
+          model: selectedAIModel,
           existingStory: refinementInstruction ? storyContent : undefined,
           refinementInstruction
         },
@@ -216,7 +240,14 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
         handleSelectChange={handleSelectChange}
       />
       
-      <StoryActions 
+      <div className="my-6">
+        <AIModelSelector 
+          selectedModel={selectedAIModel}
+          onModelChange={handleModelChange}
+        />
+      </div>
+      
+      <StoryActions
         isGenerating={isGenerating}
         onGenerate={() => generateStory()}
         onRandomize={generateRandomStory}

@@ -75,31 +75,35 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, coverImageU
 
   if (bookMode) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in">
-        <div className="w-full max-w-4xl mx-auto bg-amber-50 rounded-lg shadow-2xl overflow-auto max-h-[90vh] relative">
+      <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 md:p-8 animate-fade-in overflow-auto">
+        <div className="w-full max-w-4xl mx-auto bg-amber-50 rounded-xl shadow-2xl overflow-hidden my-8">
           <button 
             onClick={toggleBookMode}
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 z-10"
+            className="fixed top-4 right-4 md:top-6 md:right-6 p-3 rounded-full bg-white/90 hover:bg-white text-gray-800 z-50 shadow-lg transition-all hover:scale-110"
             aria-label="Close book mode"
           >
             <X className="h-5 w-5" />
           </button>
           
-          <div className="p-12 md:p-16">
+          <div className="p-8 md:p-12 lg:p-16 max-h-[85vh] overflow-y-auto">
             <div className="max-w-prose mx-auto">
-              <h1 className="text-3xl md:text-4xl font-display font-bold mb-8 text-center text-gray-800">{title}</h1>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-8 text-center text-gray-800 leading-tight">{title}</h1>
               
-              {paragraphs.map((paragraph, index) => (
-                <p key={index} className="mb-6 text-lg md:text-xl leading-relaxed font-serif text-gray-700">
-                  {paragraph}
-                </p>
-              ))}
-              
-              <div className="text-center mt-12 mb-4">
-                <Sparkles className="inline-block h-6 w-6 text-storyforge-yellow animate-pulse-slow" />
+              <div className="prose prose-lg max-w-none">
+                {paragraphs.map((paragraph, index) => (
+                  <p key={index} className={`mb-6 text-lg md:text-xl leading-relaxed font-serif text-gray-700 ${
+                    index === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:text-amber-700 first-letter:mr-1 first-letter:float-left first-letter:leading-none' : ''
+                  }`}>
+                    {paragraph}
+                  </p>
+                ))}
               </div>
               
-              <div className="text-center text-sm text-gray-500 mt-8">
+              <div className="text-center mt-12 mb-4">
+                <Sparkles className="inline-block h-6 w-6 text-amber-500 animate-pulse" />
+              </div>
+              
+              <div className="text-center text-sm text-gray-500 mt-8 pb-4">
                 {wordCount} words
               </div>
             </div>

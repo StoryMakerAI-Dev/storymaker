@@ -342,6 +342,135 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_tiers_config: {
+        Row: {
+          chat_limit_per_day: number
+          chat_limit_per_month: number
+          created_at: string
+          display_name: string
+          id: string
+          image_limit_per_day: number
+          image_limit_per_month: number
+          story_limit_per_day: number
+          story_limit_per_month: number
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string
+        }
+        Insert: {
+          chat_limit_per_day?: number
+          chat_limit_per_month?: number
+          created_at?: string
+          display_name: string
+          id?: string
+          image_limit_per_day?: number
+          image_limit_per_month?: number
+          story_limit_per_day?: number
+          story_limit_per_month?: number
+          tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+        }
+        Update: {
+          chat_limit_per_day?: number
+          chat_limit_per_month?: number
+          created_at?: string
+          display_name?: string
+          id?: string
+          image_limit_per_day?: number
+          image_limit_per_month?: number
+          story_limit_per_day?: number
+          story_limit_per_month?: number
+          tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      usage_alerts: {
+        Row: {
+          alert_type: string
+          email_sent: boolean | null
+          function_name: string | null
+          id: string
+          message: string
+          sent_at: string
+          threshold_percentage: number | null
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          email_sent?: boolean | null
+          function_name?: string | null
+          id?: string
+          message: string
+          sent_at?: string
+          threshold_percentage?: number | null
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          email_sent?: boolean | null
+          function_name?: string | null
+          id?: string
+          message?: string
+          sent_at?: string
+          threshold_percentage?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          created_at: string
+          email_notifications_enabled: boolean
+          id: string
+          preferred_ai_model: string
+          rate_limit_warning_threshold: number
+          subscription_tier: Database["public"]["Enums"]["subscription_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications_enabled?: boolean
+          id?: string
+          preferred_ai_model?: string
+          rate_limit_warning_threshold?: number
+          subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications_enabled?: boolean
+          id?: string
+          preferred_ai_model?: string
+          rate_limit_warning_threshold?: number
+          subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       writing_goals: {
         Row: {
           created_at: string
@@ -383,10 +512,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      subscription_tier: "free" | "basic" | "pro" | "enterprise"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -513,6 +650,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      subscription_tier: ["free", "basic", "pro", "enterprise"],
+    },
   },
 } as const
