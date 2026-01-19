@@ -73,38 +73,64 @@ const StoryDisplay: React.FC<StoryDisplayProps> = ({ title, content, coverImageU
     }
   };
 
+  // Handle keyboard events for book mode
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (bookMode && e.key === 'Escape') {
+        setBookMode(false);
+      }
+    };
+    
+    if (bookMode) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [bookMode]);
+
   if (bookMode) {
     return (
-      <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4 md:p-8 animate-fade-in overflow-auto">
-        <div className="w-full max-w-4xl mx-auto bg-amber-50 rounded-xl shadow-2xl overflow-hidden my-8">
-          <button 
-            onClick={toggleBookMode}
-            className="fixed top-4 right-4 md:top-6 md:right-6 p-3 rounded-full bg-white/90 hover:bg-white text-gray-800 z-50 shadow-lg transition-all hover:scale-110"
-            aria-label="Close book mode"
-          >
-            <X className="h-5 w-5" />
-          </button>
-          
-          <div className="p-8 md:p-12 lg:p-16 max-h-[85vh] overflow-y-auto">
-            <div className="max-w-prose mx-auto">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-8 text-center text-gray-800 leading-tight">{title}</h1>
-              
-              <div className="prose prose-lg max-w-none">
-                {paragraphs.map((paragraph, index) => (
-                  <p key={index} className={`mb-6 text-lg md:text-xl leading-relaxed font-serif text-gray-700 ${
-                    index === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:text-amber-700 first-letter:mr-1 first-letter:float-left first-letter:leading-none' : ''
-                  }`}>
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-              
-              <div className="text-center mt-12 mb-4">
-                <Sparkles className="inline-block h-6 w-6 text-amber-500 animate-pulse" />
-              </div>
-              
-              <div className="text-center text-sm text-gray-500 mt-8 pb-4">
-                {wordCount} words
+      <div 
+        className="fixed inset-0 z-50 bg-black/95 dark:bg-black/98 animate-fade-in"
+        onClick={(e) => e.target === e.currentTarget && setBookMode(false)}
+      >
+        <button 
+          onClick={toggleBookMode}
+          className="fixed top-4 right-4 md:top-6 md:right-6 p-3 rounded-full bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200 z-[60] shadow-lg transition-all hover:scale-110"
+          aria-label="Close book mode (Press Escape)"
+        >
+          <X className="h-5 w-5" />
+        </button>
+        
+        <div className="h-full overflow-y-auto">
+          <div className="min-h-full flex items-center justify-center p-4 md:p-8">
+            <div className="w-full max-w-3xl mx-auto bg-amber-50 dark:bg-gray-900 rounded-xl shadow-2xl my-8">
+              <div className="p-8 md:p-12 lg:p-16">
+                <div className="max-w-prose mx-auto">
+                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold mb-8 text-center text-gray-800 dark:text-gray-100 leading-tight">{title}</h1>
+                  
+                  <div className="prose prose-lg max-w-none dark:prose-invert">
+                    {paragraphs.map((paragraph, index) => (
+                      <p key={index} className={`mb-6 text-lg md:text-xl leading-relaxed text-gray-700 dark:text-gray-300 ${
+                        index === 0 ? 'first-letter:text-5xl first-letter:font-bold first-letter:text-amber-700 dark:first-letter:text-amber-500 first-letter:mr-1 first-letter:float-left first-letter:leading-none' : ''
+                      }`} style={{ fontFamily: "'Merriweather', Georgia, serif" }}>
+                        {paragraph}
+                      </p>
+                    ))}
+                  </div>
+                  
+                  <div className="text-center mt-12 mb-4">
+                    <Sparkles className="inline-block h-6 w-6 text-amber-500 animate-pulse" />
+                  </div>
+                  
+                  <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-8 pb-4">
+                    {wordCount} words • Press Escape to exit
+                  </div>
+                </div>
               </div>
             </div>
           </div>
