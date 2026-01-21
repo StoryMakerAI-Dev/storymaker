@@ -10,7 +10,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@clerk/clerk-react';
 import { toast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
-import { Shield, Users, Activity, Settings, TrendingUp, Crown, Zap, Image, MessageSquare, AlertTriangle } from 'lucide-react';
+import { Shield, Users, Activity, Settings, TrendingUp, Crown, Zap, Image, MessageSquare, AlertTriangle, ArrowUpCircle } from 'lucide-react';
+import UpgradeRequestsManager from './UpgradeRequestsManager';
 
 interface OverviewStats {
   totalRequests: number;
@@ -276,7 +277,7 @@ const AdminPanel: React.FC = () => {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-1">
               <TrendingUp className="h-4 w-4" />
               Overview
@@ -284,6 +285,10 @@ const AdminPanel: React.FC = () => {
             <TabsTrigger value="users" className="flex items-center gap-1">
               <Users className="h-4 w-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="requests" className="flex items-center gap-1">
+              <ArrowUpCircle className="h-4 w-4" />
+              Requests
             </TabsTrigger>
             <TabsTrigger value="tiers" className="flex items-center gap-1">
               <Crown className="h-4 w-4" />
@@ -541,6 +546,10 @@ const AdminPanel: React.FC = () => {
                 </Card>
               ))}
             </div>
+          </TabsContent>
+
+          <TabsContent value="requests" className="mt-6">
+            <UpgradeRequestsManager />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">

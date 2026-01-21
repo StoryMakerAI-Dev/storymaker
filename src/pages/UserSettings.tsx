@@ -5,6 +5,9 @@ import Footer from '@/components/Footer';
 import PreferencesSection from '@/components/settings/PreferencesSection';
 import UsageSection from '@/components/settings/UsageSection';
 import SubscriptionSection from '@/components/settings/SubscriptionSection';
+import UsageHistoryChart from '@/components/settings/UsageHistoryChart';
+import ThemeToggle from '@/components/settings/ThemeToggle';
+import TierUpgradeRequest from '@/components/settings/TierUpgradeRequest';
 import { ArrowLeft, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,7 +22,7 @@ const UserSettings = () => {
         <div className="min-h-screen flex flex-col bg-background">
           <Header />
           
-          <main className="flex-1 container max-w-4xl mx-auto px-4 py-8">
+          <main className="flex-1 container max-w-5xl mx-auto px-4 py-8">
             {/* Back Button */}
             <Link to="/">
               <Button variant="ghost" size="sm" className="mb-6">
@@ -32,7 +35,7 @@ const UserSettings = () => {
             <div className="flex items-center gap-4 mb-8">
               <Avatar className="h-16 w-16 border-2 border-primary/20">
                 <AvatarImage src={user?.imageUrl} alt={user?.firstName || 'User'} />
-                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-xl font-semibold">
+                <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-primary-foreground text-xl font-semibold">
                   {user?.firstName?.[0] || user?.username?.[0] || 'U'}
                 </AvatarFallback>
               </Avatar>
@@ -48,13 +51,16 @@ const UserSettings = () => {
             </div>
 
             {/* Settings Grid */}
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 lg:grid-cols-2">
               <div className="space-y-6">
+                <ThemeToggle />
                 <PreferencesSection />
                 <UsageSection />
               </div>
-              <div>
+              <div className="space-y-6">
                 <SubscriptionSection />
+                <TierUpgradeRequest />
+                <UsageHistoryChart />
               </div>
             </div>
           </main>
