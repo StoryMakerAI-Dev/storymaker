@@ -217,6 +217,64 @@ serve(async (req) => {
         result = { success: true, message: `Added admin role to ${targetUserIdForAdmin}` };
         break;
 
+      case 'upgrade-requests':
+        // Get all pending upgrade requests
+        const { data: upgradeRequests } = await supabase
+          .from('tier_upgrade_requests')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        result = { requests: upgradeRequests || [] };
+        break;
+
+      case 'handle-upgrade-request':
+        // Approve or reject an upgrade request
+        const requestBody = await req.json();
+        const { requestId, status, adminNotes } = requestBody;
+
+        // Get the request details
+        const { data: requestData } = await supabase
+          .from('tier_upgrade_requests')
+          .select('*')
+          .eq('id', requestId)
+          .single();
+
+        if (!requestData) {
+          result = { error: 'Request not found' };
+          break;
+        }
+
+        // Update the request status
+        const { error: requestUpdateError } = await supabase
+          .from('tier_upgrade_requests')
+          .update({
+            status,
+            admin_notes: adminNotes,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', requestId);
+
+        if (requestUpdateError) throw requestUpdateError;
+
+        // If approved, update the user's tier
+        if (status === 'approved') {
+          const { error: tierUpdateError } = await supabase
+            .from('user_preferences')
+            .upsert({
+              user_id: requestData.user_id,
+              subscription_tier: requestData.requested_tier,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: 'user_id' });
+
+          if (tierUpdateError) throw tierUpdateError;
+        }
+
+        result = { 
+          success: true, 
+          message: `Request ${status}${status === 'approved' ? ` - User upgraded to ${requestData.requested_tier}` : ''}` 
+        };
+        break;
+
       default:
         result = { error: 'Unknown action' };
     }

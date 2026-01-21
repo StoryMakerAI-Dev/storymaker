@@ -384,6 +384,42 @@ export type Database = {
         }
         Relationships: []
       }
+      tier_upgrade_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          current_tier: string
+          id: string
+          reason: string | null
+          requested_tier: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          current_tier: string
+          id?: string
+          reason?: string | null
+          requested_tier: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          current_tier?: string
+          id?: string
+          reason?: string | null
+          requested_tier?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       usage_alerts: {
         Row: {
           alert_type: string
