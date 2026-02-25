@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, Sparkles, LogOut, MessageCircle, Settings } from 'lucide-react';
+import { BookOpen, Sparkles, LogOut, MessageCircle, Settings, LayoutDashboard } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -101,6 +101,12 @@ const Header = () => {
                   <p className="text-xs text-muted-foreground truncate">{user?.primaryEmailAddress?.emailAddress}</p>
                 </div>
                 <DropdownMenuSeparator />
+                <Link to="/dashboard">
+                  <DropdownMenuItem>
+                    <LayoutDashboard className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </DropdownMenuItem>
+                </Link>
                 <Link to="/settings">
                   <DropdownMenuItem>
                     <Settings className="h-4 w-4 mr-2" />
