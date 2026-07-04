@@ -1,3 +1,5 @@
+import { getClerkSessionToken } from "@/utils/clerkToken";
+
 type Message = { role: "user" | "assistant"; content: string };
 
 interface StreamChatParams {
@@ -13,13 +15,17 @@ export async function streamChat({ messages, model = "google/gemini-2.5-flash", 
   const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-assistant`;
 
   try {
+    const clerkToken = await getClerkSessionToken();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      "x-user-id": userId || "anonymous",
+    };
+    if (clerkToken) headers["x-clerk-token"] = clerkToken;
+
     const resp = await fetch(CHAT_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        "x-user-id": userId || "anonymous",
-      },
+      headers,
       body: JSON.stringify({ messages, model }),
     });
 

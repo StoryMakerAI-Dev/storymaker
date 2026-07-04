@@ -31,15 +31,31 @@ const Index = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDashboard, setShowDashboard] = useState(true);
 
-  // Load story from localStorage or URL on component mount
+  // Load story from sessionStorage or URL on component mount
   useEffect(() => {
+    const MAX_SHARED_PARAM_SIZE = 100_000; // 100KB encoded
+    const MAX_TITLE_LENGTH = 500;
+    const MAX_CONTENT_LENGTH = 50_000;
+
     const urlParams = new URLSearchParams(window.location.search);
     const sharedStory = urlParams.get('shared');
-    
+
     if (sharedStory) {
       try {
+        if (sharedStory.length > MAX_SHARED_PARAM_SIZE) {
+          throw new Error('Shared payload too large');
+        }
         const storyData = JSON.parse(decodeURIComponent(sharedStory));
-        if (storyData.title && storyData.content && storyData.shared) {
+        if (
+          storyData &&
+          typeof storyData.title === 'string' &&
+          typeof storyData.content === 'string' &&
+          storyData.shared === true &&
+          storyData.title.length > 0 &&
+          storyData.title.length <= MAX_TITLE_LENGTH &&
+          storyData.content.length > 0 &&
+          storyData.content.length <= MAX_CONTENT_LENGTH
+        ) {
           setStoryContent(storyData.content);
           setStoryTitle(storyData.title);
           setShowDashboard(false);
@@ -50,14 +66,21 @@ const Index = () => {
           window.history.replaceState({}, document.title, window.location.pathname);
           return;
         }
+        throw new Error('Invalid shared story format');
       } catch (error) {
         console.error('Error parsing shared story:', error);
+        toast({
+          title: "Invalid share link",
+          description: "The shared story link is invalid or corrupted.",
+          variant: "destructive",
+        });
       }
     }
-    
-    const savedStoryContent = localStorage.getItem('currentStoryContent');
-    const savedStoryTitle = localStorage.getItem('currentStoryTitle');
-    
+
+    // Use sessionStorage so temp story cache is scoped to the tab and cleared on close.
+    const savedStoryContent = sessionStorage.getItem('currentStoryContent');
+    const savedStoryTitle = sessionStorage.getItem('currentStoryTitle');
+
     if (savedStoryContent && savedStoryTitle) {
       setStoryContent(savedStoryContent);
       setStoryTitle(savedStoryTitle);
@@ -67,16 +90,16 @@ const Index = () => {
 
   useEffect(() => {
     if (storyContent && storyTitle) {
-      localStorage.setItem('currentStoryContent', storyContent);
-      localStorage.setItem('currentStoryTitle', storyTitle);
+      sessionStorage.setItem('currentStoryContent', storyContent);
+      sessionStorage.setItem('currentStoryTitle', storyTitle);
     }
   }, [storyContent, storyTitle]);
 
   useEffect(() => {
     if (isSignedIn && storyContent && storyTitle) {
       setTimeout(() => {
-        localStorage.removeItem('currentStoryContent');
-        localStorage.removeItem('currentStoryTitle');
+        sessionStorage.removeItem('currentStoryContent');
+        sessionStorage.removeItem('currentStoryTitle');
       }, 1000);
     }
   }, [isSignedIn, storyContent, storyTitle]);

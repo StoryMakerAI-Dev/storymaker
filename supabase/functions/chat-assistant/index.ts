@@ -1,9 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyClerkUser } from "../_shared/clerkAuth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-id',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-id, x-clerk-token',
 };
 
 // Rate limit configuration
@@ -76,7 +77,11 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const userId = req.headers.get('x-user-id') || 'anonymous';
+    const verified = await verifyClerkUser(req);
+    const clientIp = req.headers.get('cf-connecting-ip')
+      || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+      || 'unknown';
+    const userId = verified?.userId || `anon:${clientIp}`;
     
     const { allowed, remaining } = await checkRateLimit(supabase, userId, 'chat-assistant');
     
