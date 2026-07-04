@@ -1,9 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { verifyClerkUser } from "../_shared/clerkAuth.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-id',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-user-id, x-clerk-token',
 };
 
 serve(async (req) => {
@@ -16,15 +17,15 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Get user ID from header
-    const userId = req.headers.get('x-user-id');
-    
-    if (!userId) {
+    // Require a verified Clerk JWT — never trust the x-user-id header.
+    const verified = await verifyClerkUser(req);
+    if (!verified) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
+        JSON.stringify({ error: 'Unauthorized: missing or invalid Clerk session token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    const userId = verified.userId;
 
     // Check if user is admin
     const { data: isAdmin } = await supabase.rpc('is_admin', { _user_id: userId });
