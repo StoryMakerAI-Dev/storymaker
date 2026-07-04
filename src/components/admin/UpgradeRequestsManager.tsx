@@ -72,11 +72,7 @@ const UpgradeRequestsManager = () => {
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats?action=handle-upgrade-request`,
         {
           method: 'POST',
-          headers: {
-            'x-user-id': userId || '',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { ...(await adminHeaders(userId)), 'Content-Type': 'application/json' },
           body: JSON.stringify({
             requestId: selectedRequest.id,
             status,
