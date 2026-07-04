@@ -7,7 +7,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ArrowUpCircle, Clock, CheckCircle2, XCircle, Loader2, RefreshCw } from 'lucide-react';
 import { useAuth } from '@clerk/clerk-react';
+import { getClerkSessionToken } from '@/utils/clerkToken';
 import { toast } from '@/hooks/use-toast';
+
+async function adminHeaders(userId: string | null | undefined): Promise<Record<string, string>> {
+  const token = await getClerkSessionToken();
+  const headers: Record<string, string> = {
+    'x-user-id': userId || '',
+    Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+  };
+  if (token) headers['x-clerk-token'] = token;
+  return headers;
+}
 
 interface UpgradeRequest {
   id: string;
@@ -34,12 +45,7 @@ const UpgradeRequestsManager = () => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats?action=upgrade-requests`,
-        {
-          headers: {
-            'x-user-id': userId || '',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-        }
+        { headers: await adminHeaders(userId) }
       );
 
       if (response.ok) {

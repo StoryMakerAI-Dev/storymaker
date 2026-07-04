@@ -92,10 +92,14 @@ const AdminPanel: React.FC = () => {
     }
 
     try {
+      const token = await getClerkSessionToken();
+      const invokeHeaders: Record<string, string> = { 'x-user-id': userId };
+      if (token) invokeHeaders['x-clerk-token'] = token;
+
       // Check admin status using the edge function
       const { data, error } = await supabase.functions.invoke('admin-stats', {
         body: {},
-        headers: { 'x-user-id': userId },
+        headers: invokeHeaders,
       });
 
       if (error?.message?.includes('403') || error?.message?.includes('Forbidden')) {
@@ -121,20 +125,9 @@ const AdminPanel: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('admin-stats', {
-        body: {},
-        headers: { 'x-user-id': userId || '' },
-      });
-
-      // Re-fetch with users action
       const usersResponse = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats?action=users`,
-        {
-          headers: {
-            'x-user-id': userId || '',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-        }
+        { headers: await adminHeaders(userId) }
       );
 
       if (usersResponse.ok) {
@@ -150,12 +143,7 @@ const AdminPanel: React.FC = () => {
     try {
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats?action=tiers`,
-        {
-          headers: {
-            'x-user-id': userId || '',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-        }
+        { headers: await adminHeaders(userId) }
       );
 
       if (response.ok) {
@@ -178,11 +166,7 @@ const AdminPanel: React.FC = () => {
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats?action=update-tier`,
         {
           method: 'POST',
-          headers: {
-            'x-user-id': userId || '',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { ...(await adminHeaders(userId)), 'Content-Type': 'application/json' },
           body: JSON.stringify({ targetUserId: selectedUser, newTier }),
         }
       );
@@ -207,11 +191,7 @@ const AdminPanel: React.FC = () => {
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-stats?action=update-tier-config`,
         {
           method: 'POST',
-          headers: {
-            'x-user-id': userId || '',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { ...(await adminHeaders(userId)), 'Content-Type': 'application/json' },
           body: JSON.stringify({ tier, [field]: value }),
         }
       );
@@ -224,6 +204,7 @@ const AdminPanel: React.FC = () => {
       console.error('Error updating tier config:', error);
     }
   };
+
 
   if (loading) {
     return (
