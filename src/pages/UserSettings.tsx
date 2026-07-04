@@ -12,12 +12,14 @@ import { ArrowLeft, User } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { PageSeo } from '@/components/seo/PageSeo';
 
 const UserSettings = () => {
   const { user } = useUser();
 
   return (
     <>
+      <PageSeo title="Account Settings - StoryMaker AI" description="Manage your StoryMaker AI preferences, usage, subscription, and theme." path="/settings" />
       <SignedIn>
         <div className="min-h-screen flex flex-col bg-background">
           <Header />

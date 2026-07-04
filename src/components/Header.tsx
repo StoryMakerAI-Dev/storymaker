@@ -86,7 +86,7 @@ const Header = () => {
           {isSignedIn ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-1 rounded-full">
+                <Button variant="ghost" size="sm" className="p-1 rounded-full" aria-label="User menu">
                   <Avatar className="h-8 w-8 border-2 border-primary/20">
                     <AvatarImage src={user?.imageUrl} alt={user?.firstName || 'User'} />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-secondary text-white text-sm font-semibold">

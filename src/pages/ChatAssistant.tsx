@@ -8,6 +8,7 @@ import ModelSelector from '@/components/chat/ModelSelector';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@clerk/clerk-react';
+import { PageSeo } from '@/components/seo/PageSeo';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
@@ -80,6 +81,7 @@ const ChatAssistant: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <PageSeo title="Chat Assistant - StoryMaker AI" description="Brainstorm story ideas, develop characters, and refine plots with the StoryMaker AI writing assistant." path="/chat-assistant" />
       <Header />
       
       <main className="flex-1 container mx-auto px-4 py-8">

@@ -13,6 +13,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
+import { PageSeo } from '@/components/seo/PageSeo';
 
 const Dashboard = () => {
   const { user } = useUser();
@@ -26,6 +27,7 @@ const Dashboard = () => {
 
   return (
     <>
+      <PageSeo title="Your Dashboard - StoryMaker AI" description="Personalized overview with recent stories, AI usage, and writing goals." path="/dashboard" />
       <SignedIn>
         <div className="min-h-screen flex flex-col bg-gradient-to-br from-surface via-background to-primary/5">
           <Header />

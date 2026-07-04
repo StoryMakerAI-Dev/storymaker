@@ -42,6 +42,7 @@ const Footer = () => {
               href="https://github.com" 
               target="_blank" 
               rel="noopener noreferrer" 
+              aria-label="View source on GitHub"
               className="text-muted-foreground hover:text-foreground transition-colors"
             >
               <Github className="h-5 w-5" />
