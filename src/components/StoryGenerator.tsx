@@ -129,7 +129,11 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
     try {
       // Get user ID for rate limiting
       const userId = user?.id || 'anonymous';
-      
+      const { getClerkSessionToken } = await import('@/utils/clerkToken');
+      const clerkToken = await getClerkSessionToken();
+      const authHeaders: Record<string, string> = { 'x-user-id': userId };
+      if (clerkToken) authHeaders['x-clerk-token'] = clerkToken;
+
       // Generate story text with selected AI model
       const { data: storyData, error: storyError } = await supabase.functions.invoke('generate-story', {
         body: {
@@ -144,9 +148,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
           existingStory: refinementInstruction ? storyContent : undefined,
           refinementInstruction
         },
-        headers: {
-          'x-user-id': userId
-        }
+        headers: authHeaders
       });
 
       if (storyError) throw storyError;
@@ -160,9 +162,7 @@ const StoryGenerator: React.FC<StoryGeneratorProps> = ({
           setting: paramsToUse.setting,
           ageGroup: paramsToUse.ageGroup
         },
-        headers: {
-          'x-user-id': userId
-        }
+        headers: authHeaders
       });
 
       const coverImageUrl = imageData?.imageUrl;
