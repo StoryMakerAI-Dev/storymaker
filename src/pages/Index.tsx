@@ -15,6 +15,7 @@ import CharacterLibrary from '@/components/characters/CharacterLibrary';
 import CollectionManager from '@/components/collections/CollectionManager';
 import AdminPanel from '@/components/admin/AdminPanel';
 import { Sparkles, TrendingUp } from 'lucide-react';
+import { PageSeo } from '@/components/seo/PageSeo';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@clerk/clerk-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -150,6 +151,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-surface via-background to-primary/5">
+      <PageSeo title="StoryMaker AI - AI-Powered Story Creator for All Ages" description="Create unique AI-generated stories for children, teens, and adults. Customize characters, settings, and themes for personalized storytelling." path="/" />
       <Header />
       
       <main className="flex-grow container max-w-7xl mx-auto px-4 py-8">

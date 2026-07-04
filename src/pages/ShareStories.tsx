@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from '@clerk/clerk-react';
 import { SharedStory } from '@/types/story';
+import { PageSeo } from '@/components/seo/PageSeo';
 
 // Import refactored components
 import CommunityStoriesHeader from '@/components/share/CommunityStoriesHeader';
@@ -165,6 +166,7 @@ const ShareStories = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-storyforge-background to-white">
+      <PageSeo title="Community Stories - StoryMaker AI" description="Browse and share AI-generated stories from the StoryMaker community." path="/share-stories" />
       <Header />
       
       <main className="flex-grow container max-w-6xl mx-auto px-4 py-8">
