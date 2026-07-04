@@ -1,0 +1,17 @@
+# StoryMaker AI
+
+> AI-powered story creator that generates unique, customizable stories for children, teens, and adults with tailored characters, settings, and themes.
+
+StoryMaker AI helps users craft personalized stories using AI. You can pick age groups, genres, characters, and themes, then export finished stories in multiple formats. A community section lets users browse and share stories.
+
+## Pages
+
+- [Home](/): Create custom AI-generated stories with configurable characters, themes, and settings.
+- [Community Stories](/share-stories): Browse and share stories created by the community.
+- [Chat Assistant](/chat-assistant): Interactive AI assistant to help brainstorm and refine stories.
+- [Dashboard](/dashboard): Personalized overview with recent stories, usage stats, and writing goals.
+
+## Optional
+
+- [Sign in](/sign-in): Account sign in.
+- [Sign up](/sign-up): Create a new account.
