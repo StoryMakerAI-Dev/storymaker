@@ -8,10 +8,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@clerk/clerk-react';
+import { getClerkSessionToken } from '@/utils/clerkToken';
 import { toast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts';
 import { Shield, Users, Activity, Settings, TrendingUp, Crown, Zap, Image, MessageSquare, AlertTriangle, ArrowUpCircle } from 'lucide-react';
 import UpgradeRequestsManager from './UpgradeRequestsManager';
+
+async function adminHeaders(userId: string | null | undefined): Promise<Record<string, string>> {
+  const token = await getClerkSessionToken();
+  const headers: Record<string, string> = {
+    'x-user-id': userId || '',
+    Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+  };
+  if (token) headers['x-clerk-token'] = token;
+  return headers;
+}
 
 interface OverviewStats {
   totalRequests: number;
