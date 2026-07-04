@@ -1,0 +1,106 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "storymaker-ai-mcp",
+      "version": "0.1.0",
+      "title": "StoryMaker AI"
+    },
+    "tools": [
+      {
+        "name": "echo",
+        "title": "Echo",
+        "description": "Echo the input text back. Useful for verifying connectivity to the StoryMaker AI MCP server.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Text to echo back."
+            }
+          },
+          "required": [
+            "text"
+          ]
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_story_templates",
+        "title": "List story templates",
+        "description": "List publicly available StoryMaker AI story templates. Optionally filter by age group or genre to narrow results.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "ageGroup": {
+              "description": "Optional age group filter, e.g. 'kids', 'teens', 'adults'.",
+              "type": "string"
+            },
+            "genre": {
+              "description": "Optional genre filter, e.g. 'fantasy', 'mystery'.",
+              "type": "string"
+            },
+            "limit": {
+              "description": "Maximum number of templates to return (default 20).",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "generate_story_idea",
+        "title": "Generate story idea",
+        "description": "Generate a short, original story idea (title + 3-sentence premise) using StoryMaker AI. Provide a theme, age group, and optional genre.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": false,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "theme": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Theme or concept to base the story on."
+            },
+            "ageGroup": {
+              "description": "Target age group (e.g. 'kids', 'teens', 'adults'). Defaults to 'adults'.",
+              "type": "string"
+            },
+            "genre": {
+              "description": "Optional genre, e.g. 'fantasy'.",
+              "type": "string"
+            }
+          },
+          "required": [
+            "theme"
+          ]
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
