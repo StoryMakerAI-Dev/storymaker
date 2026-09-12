@@ -12,6 +12,7 @@ import ShareStories from "./pages/ShareStories";
 import ChatAssistant from "./pages/ChatAssistant";
 import UserSettings from "./pages/UserSettings";
 import Dashboard from "./pages/Dashboard";
+import CharacterBackstory from "./pages/CharacterBackstory";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/chat-assistant" element={<ChatAssistant />} />
             <Route path="/settings" element={<UserSettings />} />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/characters/backstory" element={<CharacterBackstory />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
